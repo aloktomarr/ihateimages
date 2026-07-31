@@ -8,7 +8,7 @@ import { TOOL_CONTENT } from './toolContent';
 import { BLOG_POSTS, type BlogPostMeta } from './blog';
 
 export const SITE_URL =
-  (import.meta.env as Record<string, string | undefined>).VITE_SITE_URL || 'https://ihateimages.app';
+  (import.meta.env as Record<string, string | undefined>).VITE_SITE_URL || 'https://ihateimages.com';
 export const SITE_NAME = 'iHateImages';
 export const OG_IMAGE = `${SITE_URL}/og-image.svg`;
 
@@ -141,6 +141,7 @@ const homeJsonLd = [
     description:
       'Free, private image tools that run entirely in your browser. Compress, convert, resize, crop, upscale and remove backgrounds with no upload and no watermark.',
     offers: { '@type': 'Offer', price: '0', priceCurrency: 'USD' },
+    creator: { '@type': 'Person', name: 'Alok Tomar', url: 'https://x.com/AlokTom19637918' },
   },
   {
     '@context': 'https://schema.org',

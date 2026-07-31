@@ -75,7 +75,16 @@ export default function Footer() {
         </div>
 
         <p className="mt-10 text-xs text-muted">
-          &copy; {YEAR} iHateImages. Your images never leave your device.
+          &copy; {YEAR} iHateImages. Your images never leave your device.{' '}
+          <a
+            href="https://x.com/AlokTom19637918"
+            target="_blank"
+            rel="me noopener noreferrer"
+            className="transition hover:text-fg"
+          >
+            Built by Alok Tomar
+          </a>
+          .
         </p>
       </div>
     </footer>

@@ -6,7 +6,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, resolve } from 'node:path';
 
-const SITE_URL = process.env.VITE_SITE_URL || 'https://ihateimages.app';
+const SITE_URL = process.env.VITE_SITE_URL || 'https://ihateimages.com';
 const root = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 
 const staticRoutes = [

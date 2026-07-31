@@ -1,162 +1,162 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
   <url>
-    <loc>https://ihateimages.app/</loc>
+    <loc>https://ihateimages.com/</loc>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
   </url>
   <url>
-    <loc>https://ihateimages.app/compress</loc>
+    <loc>https://ihateimages.com/compress</loc>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://ihateimages.app/convert</loc>
+    <loc>https://ihateimages.com/convert</loc>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://ihateimages.app/resize</loc>
+    <loc>https://ihateimages.com/resize</loc>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://ihateimages.app/strip-metadata</loc>
+    <loc>https://ihateimages.com/strip-metadata</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ihateimages.app/background-remover</loc>
+    <loc>https://ihateimages.com/background-remover</loc>
     <changefreq>monthly</changefreq>
     <priority>0.9</priority>
   </url>
   <url>
-    <loc>https://ihateimages.app/crop</loc>
+    <loc>https://ihateimages.com/crop</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ihateimages.app/upscale</loc>
+    <loc>https://ihateimages.com/upscale</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ihateimages.app/favicon</loc>
+    <loc>https://ihateimages.com/favicon</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ihateimages.app/passport-photo</loc>
+    <loc>https://ihateimages.com/passport-photo</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ihateimages.app/rotate</loc>
+    <loc>https://ihateimages.com/rotate</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ihateimages.app/image-to-pdf</loc>
+    <loc>https://ihateimages.com/image-to-pdf</loc>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
   <url>
-    <loc>https://ihateimages.app/about</loc>
+    <loc>https://ihateimages.com/about</loc>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
   </url>
   <url>
-    <loc>https://ihateimages.app/privacy</loc>
+    <loc>https://ihateimages.com/privacy</loc>
     <changefreq>yearly</changefreq>
     <priority>0.3</priority>
   </url>
   <url>
-    <loc>https://ihateimages.app/convert/heic-to-jpg</loc>
+    <loc>https://ihateimages.com/convert/heic-to-jpg</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ihateimages.app/convert/heic-to-png</loc>
+    <loc>https://ihateimages.com/convert/heic-to-png</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ihateimages.app/convert/heic-to-webp</loc>
+    <loc>https://ihateimages.com/convert/heic-to-webp</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ihateimages.app/convert/heic-to-avif</loc>
+    <loc>https://ihateimages.com/convert/heic-to-avif</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ihateimages.app/convert/jpg-to-png</loc>
+    <loc>https://ihateimages.com/convert/jpg-to-png</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ihateimages.app/convert/jpg-to-webp</loc>
+    <loc>https://ihateimages.com/convert/jpg-to-webp</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ihateimages.app/convert/jpg-to-avif</loc>
+    <loc>https://ihateimages.com/convert/jpg-to-avif</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ihateimages.app/convert/png-to-jpg</loc>
+    <loc>https://ihateimages.com/convert/png-to-jpg</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ihateimages.app/convert/png-to-webp</loc>
+    <loc>https://ihateimages.com/convert/png-to-webp</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ihateimages.app/convert/png-to-avif</loc>
+    <loc>https://ihateimages.com/convert/png-to-avif</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ihateimages.app/convert/webp-to-jpg</loc>
+    <loc>https://ihateimages.com/convert/webp-to-jpg</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ihateimages.app/convert/webp-to-png</loc>
+    <loc>https://ihateimages.com/convert/webp-to-png</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ihateimages.app/convert/webp-to-avif</loc>
+    <loc>https://ihateimages.com/convert/webp-to-avif</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ihateimages.app/convert/avif-to-jpg</loc>
+    <loc>https://ihateimages.com/convert/avif-to-jpg</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ihateimages.app/convert/avif-to-png</loc>
+    <loc>https://ihateimages.com/convert/avif-to-png</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ihateimages.app/convert/avif-to-webp</loc>
+    <loc>https://ihateimages.com/convert/avif-to-webp</loc>
     <changefreq>monthly</changefreq>
     <priority>0.7</priority>
   </url>
   <url>
-    <loc>https://ihateimages.app/blog</loc>
+    <loc>https://ihateimages.com/blog</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
   <url>
-    <loc>https://ihateimages.app/blog/client-side-image-processing</loc>
+    <loc>https://ihateimages.com/blog/client-side-image-processing</loc>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
   </url>
