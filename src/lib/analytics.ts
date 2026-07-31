@@ -3,9 +3,14 @@
 // on your device and are never sent to any analytics service.
 type ClarityFn = ((...args: unknown[]) => void) & { q?: unknown[] };
 
+// Microsoft Clarity project id. It ships in the page (public by design), so hardcoding is fine;
+// set VITE_CLARITY_ID to override. Only loads in production builds so local dev/testing sessions
+// are not tracked. Your images are processed on-device and are never sent to Clarity.
+const CLARITY_ID =
+  (import.meta.env as Record<string, string | undefined>).VITE_CLARITY_ID || 'xv7b7rr8ee';
+
 export function initAnalytics(): void {
-  const id = (import.meta.env as Record<string, string | undefined>).VITE_CLARITY_ID;
-  if (!id) return;
+  if (!import.meta.env.PROD || !CLARITY_ID) return;
 
   const w = window as unknown as { clarity?: ClarityFn };
   if (!w.clarity) {
@@ -17,6 +22,6 @@ export function initAnalytics(): void {
 
   const script = document.createElement('script');
   script.async = true;
-  script.src = `https://www.clarity.ms/tag/${id}`;
+  script.src = `https://www.clarity.ms/tag/${CLARITY_ID}`;
   document.head.appendChild(script);
 }
