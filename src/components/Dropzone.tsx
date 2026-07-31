@@ -5,9 +5,15 @@ interface Props {
   accept?: string;
   multiple?: boolean;
   onFiles: (files: File[]) => void;
+  highlight?: boolean;
 }
 
-export default function Dropzone({ accept = 'image/*,.heic,.heif', multiple = true, onFiles }: Props) {
+export default function Dropzone({
+  accept = 'image/*,.heic,.heif',
+  multiple = true,
+  onFiles,
+  highlight = false,
+}: Props) {
   const [drag, setDrag] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -41,7 +47,7 @@ export default function Dropzone({ accept = 'image/*,.heic,.heif', multiple = tr
         if (e.key === 'Enter' || e.key === ' ') inputRef.current?.click();
       }}
       className={`cursor-pointer rounded-2xl border-2 border-dashed p-10 text-center transition ${
-        drag ? 'border-accent bg-hover' : 'border-line hover:bg-hover'
+        drag || highlight ? 'border-accent bg-hover' : 'border-line hover:bg-hover'
       }`}
     >
       <input

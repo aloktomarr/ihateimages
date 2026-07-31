@@ -87,30 +87,57 @@ export default function ImageToolShell({
   slug,
 }: Props) {
   const [files, setFiles] = useState<File[]>([]);
+  const [previews, setPreviews] = useState<string[]>([]);
   const [rows, setRows] = useState<ResultRow[]>([]);
   const [busy, setBusy] = useState(false);
+  const [needsImage, setNeedsImage] = useState(false);
   const urlsRef = useRef<string[]>([]);
+  const previewUrlsRef = useRef<string[]>([]);
 
   const cleanupUrls = useCallback(() => {
     urlsRef.current.forEach((u) => URL.revokeObjectURL(u));
     urlsRef.current = [];
   }, []);
 
-  // Revoke object URLs on unmount so processed images don't leak memory.
-  useEffect(() => cleanupUrls, [cleanupUrls]);
+  const cleanupPreviews = useCallback(() => {
+    previewUrlsRef.current.forEach((u) => URL.revokeObjectURL(u));
+    previewUrlsRef.current = [];
+  }, []);
+
+  // Revoke object URLs on unmount so images don't leak memory.
+  useEffect(
+    () => () => {
+      cleanupUrls();
+      cleanupPreviews();
+    },
+    [cleanupUrls, cleanupPreviews],
+  );
 
   const onFiles = useCallback(
     (incoming: File[]) => {
+      cleanupUrls();
+      cleanupPreviews();
       setFiles(incoming);
       setRows([]);
-      cleanupUrls();
+      setNeedsImage(false);
+      setPreviews(
+        incoming.map((f) => {
+          const u = URL.createObjectURL(f);
+          previewUrlsRef.current.push(u);
+          return u;
+        }),
+      );
       onFilesChange?.(incoming);
     },
-    [cleanupUrls, onFilesChange],
+    [cleanupUrls, cleanupPreviews, onFilesChange],
   );
 
   const run = useCallback(async () => {
-    if (!files.length) return;
+    if (!files.length) {
+      setNeedsImage(true);
+      return;
+    }
+    setNeedsImage(false);
     setBusy(true);
     cleanupUrls();
     const next: ResultRow[] = [];
@@ -161,17 +188,20 @@ export default function ImageToolShell({
       <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_320px]">
         {/* Left column: upload area */}
         <div className="lg:col-start-1 lg:row-start-1">
-          <Dropzone onFiles={onFiles} />
+          <Dropzone onFiles={onFiles} highlight={needsImage} />
         </div>
 
         {/* Right column: filters + primary action (sticky on desktop) */}
         <aside className="space-y-4 lg:sticky lg:top-20 lg:col-start-2 lg:row-start-1 lg:row-span-2 lg:self-start">
           {controls}
-          <button onClick={run} disabled={busy || files.length === 0} className="btn-primary w-full">
+          <button onClick={run} disabled={busy} className="btn-primary w-full">
             {busy ? 'Working' : actionLabel}
           </button>
           {busy && <Spinner label="Processing on your device" />}
-          {files.length === 0 && (
+          {needsImage && files.length === 0 && (
+            <p className="text-sm font-medium text-accent">Please add an image first.</p>
+          )}
+          {files.length === 0 && !needsImage && (
             <p className="text-xs text-muted">Drop an image on the left to get started.</p>
           )}
         </aside>
@@ -198,10 +228,35 @@ export default function ImageToolShell({
         )}
 
         {files.length > 0 && rows.length === 0 && (
-          <p className="text-sm text-muted lg:col-start-1 lg:row-start-2">
-            {files.length} image{files.length > 1 ? 's' : ''} ready. Set your options, then{' '}
-            {actionLabel.toLowerCase()}.
-          </p>
+          <div className="space-y-3 lg:col-start-1 lg:row-start-2">
+            {files.length === 1 ? (
+              <img
+                src={previews[0]}
+                alt={files[0]?.name ?? 'Preview'}
+                className="max-h-64 w-auto rounded-xl border border-line bg-hover object-contain"
+              />
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {previews.map((src, i) => (
+                  <img
+                    key={i}
+                    src={src}
+                    alt={files[i]?.name ?? 'Preview'}
+                    width={96}
+                    height={96}
+                    loading="lazy"
+                    decoding="async"
+                    style={{ width: 96, height: 96 }}
+                    className="rounded-lg border border-line bg-hover object-cover"
+                  />
+                ))}
+              </div>
+            )}
+            <p className="text-sm text-muted">
+              {files.length} image{files.length > 1 ? 's' : ''} ready. Set your options, then{' '}
+              {actionLabel.toLowerCase()}.
+            </p>
+          </div>
         )}
       </div>
 

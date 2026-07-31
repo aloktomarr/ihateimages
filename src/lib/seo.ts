@@ -10,7 +10,7 @@ import { BLOG_POSTS, type BlogPostMeta } from './blog';
 export const SITE_URL =
   (import.meta.env as Record<string, string | undefined>).VITE_SITE_URL || 'https://ihateimages.com';
 export const SITE_NAME = 'iHateImages';
-export const OG_IMAGE = `${SITE_URL}/og-image.svg`;
+export const OG_IMAGE = `${SITE_URL}/og-image.png`;
 
 export interface SeoMeta {
   title: string;
