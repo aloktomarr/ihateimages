@@ -1,0 +1,20 @@
+{
+  "conversions": [
+    { "from": "heic", "to": "jpg" },
+    { "from": "heic", "to": "png" },
+    { "from": "heic", "to": "webp" },
+    { "from": "heic", "to": "avif" },
+    { "from": "jpg", "to": "png" },
+    { "from": "jpg", "to": "webp" },
+    { "from": "jpg", "to": "avif" },
+    { "from": "png", "to": "jpg" },
+    { "from": "png", "to": "webp" },
+    { "from": "png", "to": "avif" },
+    { "from": "webp", "to": "jpg" },
+    { "from": "webp", "to": "png" },
+    { "from": "webp", "to": "avif" },
+    { "from": "avif", "to": "jpg" },
+    { "from": "avif", "to": "png" },
+    { "from": "avif", "to": "webp" }
+  ]
+}

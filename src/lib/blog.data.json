@@ -1,0 +1,12 @@
+{
+  "posts": [
+    {
+      "slug": "client-side-image-processing",
+      "title": "How we process images 100% in your browser (no uploads)",
+      "description": "How iHateImages compresses, converts and edits images entirely client-side using Canvas, Web Workers and WebAssembly, with nothing ever uploaded to a server.",
+      "date": "2026-07-31",
+      "readingMinutes": 6,
+      "excerpt": "Most online image tools upload your files to a server. Here is how we do compression, HEIC conversion and background removal entirely in the browser instead."
+    }
+  ]
+}

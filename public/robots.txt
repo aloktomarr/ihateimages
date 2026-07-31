@@ -1,0 +1,5 @@
+User-agent: *
+Allow: /
+
+# Update the domain below to your production domain (must match SITE_URL in src/lib/seo.ts).
+Sitemap: https://ihateimages.app/sitemap.xml

@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="preconnect" href="https://staticimgly.com" crossorigin />
+    <link rel="dns-prefetch" href="https://staticimgly.com" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
+    <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#000000" />
+    <title>iHateImages - Free Private Image Tools, No Upload, No Watermark</title>
+    <meta
+      name="description"
+      content="Free, private image tools that run 100% in your browser. Compress, convert, resize, crop, upscale and remove backgrounds with no upload, no watermark and no sign-up."
+    />
+    <link rel="canonical" href="https://ihateimages.app/" />
+    <meta name="robots" content="index, follow, max-image-preview:large" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="iHateImages" />
+    <meta property="og:title" content="iHateImages - Free Private Image Tools" />
+    <meta
+      property="og:description"
+      content="Compress, convert, resize, crop, upscale and remove backgrounds 100% in your browser. No upload, no watermark, no sign-up."
+    />
+    <meta property="og:url" content="https://ihateimages.app/" />
+    <meta property="og:image" content="https://ihateimages.app/og-image.svg" />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="iHateImages - Free Private Image Tools" />
+    <meta
+      name="twitter:description"
+      content="Compress, convert, resize, crop and remove backgrounds 100% in your browser. No upload, no watermark."
+    />
+    <meta name="twitter:image" content="https://ihateimages.app/og-image.svg" />
+    <!-- Search engine verification: paste your token(s) and uncomment.
+    <meta name="google-site-verification" content="YOUR_GOOGLE_TOKEN" />
+    <meta name="msvalidate.01" content="YOUR_BING_TOKEN" />
+    -->
+    <script type="application/ld+json">
+      {"@context":"https://schema.org","@type":"WebApplication","name":"iHateImages","url":"https://ihateimages.app/","applicationCategory":"MultimediaApplication","operatingSystem":"Web browser","description":"Free, private image tools that run in your browser. Compress, convert, resize, crop, upscale and remove backgrounds with no upload and no watermark.","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}
+    </script>
+    <script>
+      // Apply the saved theme before paint to avoid a flash of the wrong theme. Light is the default.
+      (function () {
+        try {
+          if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark');
+          }
+        } catch (e) {}
+      })();
+    </script>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>
