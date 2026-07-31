@@ -19,4 +19,6 @@ export const TOOLS: ToolMeta[] = [
   { slug: 'upscale', path: '/upscale', title: 'Upscale', blurb: 'Enlarge 2x or 4x with high-quality resampling.', icon: 'upscale', live: true },
   { slug: 'favicon', path: '/favicon', title: 'Favicon and app icons', blurb: 'Every icon size plus web manifest, zipped.', icon: 'star', live: true },
   { slug: 'passport', path: '/passport-photo', title: 'Passport / ID photo', blurb: 'Crop to official sizes with correct DPI.', icon: 'badge', live: true },
+  { slug: 'rotate', path: '/rotate', title: 'Rotate & flip', blurb: 'Rotate 90 degrees or flip images, in batch.', icon: 'rotate', live: true },
+  { slug: 'image-to-pdf', path: '/image-to-pdf', title: 'Image to PDF', blurb: 'Combine images into a single PDF, in order.', icon: 'pdf', live: true },
 ];

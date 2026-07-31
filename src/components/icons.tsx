@@ -20,7 +20,9 @@ export type IconName =
   | 'bolt'
   | 'phone'
   | 'chevronDown'
-  | 'upload';
+  | 'upload'
+  | 'rotate'
+  | 'pdf';
 
 const PATHS: Record<IconName, JSX.Element> = {
   logo: (
@@ -93,6 +95,18 @@ const PATHS: Record<IconName, JSX.Element> = {
   ),
   chevronDown: <path d="M6 9l6 6 6-6" />,
   upload: <path d="M12 15V4M8 8l4-4 4 4M5 20h14" />,
+  rotate: (
+    <>
+      <path d="M21 12a9 9 0 1 1-2.64-6.36" />
+      <path d="M21 3v6h-6" />
+    </>
+  ),
+  pdf: (
+    <>
+      <path d="M14 3v5h5" />
+      <path d="M7 3h7l5 5v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" />
+    </>
+  ),
 };
 
 interface IconProps extends SVGProps<SVGSVGElement> {

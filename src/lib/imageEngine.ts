@@ -1,8 +1,9 @@
 import * as Comlink from 'comlink';
 import type { ImageWorkerApi } from '../workers/image.worker';
-import { clampCrop, computeSize, type ProcessOptions, type ProcessResult } from './imageTypes';
+import { type ProcessOptions, type ProcessResult } from './imageTypes';
 import { encodeAvif } from './avif';
 import { sharpenImageData } from './sharpen';
+import { prepare } from './draw';
 
 let remote: Comlink.Remote<ImageWorkerApi> | null = null;
 
@@ -37,34 +38,31 @@ async function toDecodable(file: File): Promise<{ blob: Blob; type: string }> {
 // Fallback for the rare browser without Worker/OffscreenCanvas support.
 async function processOnMain(blob: Blob, options: ProcessOptions): Promise<ProcessResult> {
   const bitmap = await createImageBitmap(blob);
-  const src = clampCrop(options.crop, bitmap.width, bitmap.height);
-  const { width, height } = computeSize(src.width, src.height, options.resize);
+  const { canvasW, canvasH, draw } = prepare(bitmap, options);
 
   const canvas = document.createElement('canvas');
-  canvas.width = width;
-  canvas.height = height;
+  canvas.width = canvasW;
+  canvas.height = canvasH;
   const ctx = canvas.getContext('2d', { alpha: options.targetFormat !== 'image/jpeg' });
   if (!ctx) throw new Error('Could not acquire 2D context');
 
   if (options.targetFormat === 'image/jpeg') {
     ctx.fillStyle = '#ffffff';
-    ctx.fillRect(0, 0, width, height);
+    ctx.fillRect(0, 0, canvasW, canvasH);
   }
-  ctx.imageSmoothingEnabled = true;
-  ctx.imageSmoothingQuality = 'high';
-  ctx.drawImage(bitmap, src.x, src.y, src.width, src.height, 0, 0, width, height);
+  draw(ctx);
   bitmap.close();
 
   if (options.sharpen && options.sharpen > 0) {
-    const id = ctx.getImageData(0, 0, width, height);
+    const id = ctx.getImageData(0, 0, canvasW, canvasH);
     sharpenImageData(id, options.sharpen);
     ctx.putImageData(id, 0, 0);
   }
 
   if (options.targetFormat === 'image/avif') {
-    const data = ctx.getImageData(0, 0, width, height);
+    const data = ctx.getImageData(0, 0, canvasW, canvasH);
     const buf = await encodeAvif(data, options.quality);
-    return { blob: new Blob([buf], { type: 'image/avif' }), width, height, outType: 'image/avif' };
+    return { blob: new Blob([buf], { type: 'image/avif' }), width: canvasW, height: canvasH, outType: 'image/avif' };
   }
 
   const out: Blob = await new Promise((resolve, reject) => {
@@ -74,7 +72,7 @@ async function processOnMain(blob: Blob, options: ProcessOptions): Promise<Proce
       options.targetFormat === 'image/png' ? undefined : options.quality,
     );
   });
-  return { blob: out, width, height, outType: out.type || options.targetFormat };
+  return { blob: out, width: canvasW, height: canvasH, outType: out.type || options.targetFormat };
 }
 
 export async function processImage(file: File, options: ProcessOptions): Promise<ProcessResult> {

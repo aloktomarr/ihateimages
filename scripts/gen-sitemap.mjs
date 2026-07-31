@@ -20,6 +20,8 @@ const staticRoutes = [
   { path: '/upscale', priority: '0.8', changefreq: 'monthly' },
   { path: '/favicon', priority: '0.8', changefreq: 'monthly' },
   { path: '/passport-photo', priority: '0.8', changefreq: 'monthly' },
+  { path: '/rotate', priority: '0.8', changefreq: 'monthly' },
+  { path: '/image-to-pdf', priority: '0.8', changefreq: 'monthly' },
   { path: '/about', priority: '0.4', changefreq: 'yearly' },
   { path: '/privacy', priority: '0.3', changefreq: 'yearly' },
 ];

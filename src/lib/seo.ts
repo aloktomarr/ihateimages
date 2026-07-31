@@ -214,6 +214,18 @@ export const SEO_BY_PATH: Record<string, SeoMeta> = {
     'Passport Photo Maker - US, UK, EU Sizes | iHateImages',
     'Free passport and ID photo maker. Crop to official US, UK, EU, India and more sizes at the correct DPI. In your browser, no upload, no watermark.',
   ),
+  '/rotate': tool(
+    'Image Rotator',
+    '/rotate',
+    'Rotate & Flip Images Online Free | iHateImages',
+    'Rotate images 90 degrees or flip them horizontally and vertically online for free. Batch, in your browser, no upload, no watermark.',
+  ),
+  '/image-to-pdf': tool(
+    'Image to PDF Converter',
+    '/image-to-pdf',
+    'Image to PDF - Convert JPG & PNG to PDF Free | iHateImages',
+    'Combine JPG, PNG, WebP, AVIF and HEIC images into a single PDF online for free. In your browser, no upload, no watermark.',
+  ),
   '/about': {
     title: 'About iHateImages - Free, Private Image Tools',
     description:

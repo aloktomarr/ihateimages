@@ -134,4 +134,32 @@ export const TOOL_CONTENT: Record<string, ToolContentData> = {
       { q: 'What do I get?', a: 'A full-resolution PNG with a transparent background, or your chosen solid colour.' },
     ],
   },
+  '/rotate': {
+    about:
+      'Rotating fixes photos taken at the wrong orientation, and flipping mirrors an image. Both are lossless aside from the output format you export to.',
+    steps: [
+      { name: 'Add your images', text: 'Drop the images you want to rotate or flip.' },
+      { name: 'Choose rotation and flips', text: 'Rotate left or right in 90 degree steps, and flip horizontally or vertically.' },
+      { name: 'Apply and download', text: 'Click Apply and download each image, or all of them as a ZIP.' },
+    ],
+    faq: [
+      { q: 'Does rotating reduce quality?', a: 'Rotating by 90, 180 or 270 degrees is lossless; any change comes only from the output format and quality you pick.' },
+      { q: 'Can I rotate many photos at once?', a: 'Yes. Drop a batch and the same rotation and flip settings apply to all of them.' },
+      { q: 'Are my images uploaded?', a: 'No, rotating and flipping happen entirely on your device.' },
+    ],
+  },
+  '/image-to-pdf': {
+    about:
+      'Turning images into a PDF is handy for sharing scans, receipts, portfolios or multi-page documents as one file that opens everywhere.',
+    steps: [
+      { name: 'Add your images', text: 'Drop JPG, PNG, WebP, AVIF or HEIC images in the order you want the pages.' },
+      { name: 'Choose page settings', text: 'Pick A4, US Letter or fit-to-image, and portrait or landscape.' },
+      { name: 'Create and download', text: 'Click Create PDF and download your combined document.' },
+    ],
+    faq: [
+      { q: 'Can I combine many images into one PDF?', a: 'Yes. Every image you drop becomes one page, in the order you added them.' },
+      { q: 'Which image formats work?', a: 'JPG, PNG, WebP, AVIF and HEIC. HEIC photos from an iPhone are supported too.' },
+      { q: 'Is my document uploaded?', a: 'No. The PDF is built entirely in your browser and never leaves your device.' },
+    ],
+  },
 };

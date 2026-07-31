@@ -19,6 +19,8 @@ const {
   Upscale,
   Favicon,
   PassportPhoto,
+  Rotate,
+  ImageToPdf,
   About,
   Privacy,
   Blog,
@@ -49,6 +51,8 @@ export default function App() {
             <Route path="/upscale" element={<Upscale />} />
             <Route path="/favicon" element={<Favicon />} />
             <Route path="/passport-photo" element={<PassportPhoto />} />
+            <Route path="/rotate" element={<Rotate />} />
+            <Route path="/image-to-pdf" element={<ImageToPdf />} />
             <Route path="/about" element={<About />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/blog" element={<Blog />} />

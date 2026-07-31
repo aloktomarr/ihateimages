@@ -17,6 +17,13 @@ export interface CropRect {
   height: number;
 }
 
+/** Rotation (degrees) and flips applied after crop/resize. */
+export interface Transform {
+  rotate?: 0 | 90 | 180 | 270;
+  flipH?: boolean;
+  flipV?: boolean;
+}
+
 export interface ProcessOptions {
   targetFormat: TargetFormat;
   /** 0..1 lossy quality (ignored for PNG). */
@@ -26,6 +33,8 @@ export interface ProcessOptions {
   crop?: CropRect;
   /** Optional sharpen amount (0..~1). Used by the upscaler to recover crispness. */
   sharpen?: number;
+  /** Optional rotation / flip. */
+  transform?: Transform;
 }
 
 export interface ProcessInput {

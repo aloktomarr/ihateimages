@@ -51,6 +51,16 @@
     <priority>0.8</priority>
   </url>
   <url>
+    <loc>https://ihateimages.app/rotate</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
+    <loc>https://ihateimages.app/image-to-pdf</loc>
+    <changefreq>monthly</changefreq>
+    <priority>0.8</priority>
+  </url>
+  <url>
     <loc>https://ihateimages.app/about</loc>
     <changefreq>yearly</changefreq>
     <priority>0.4</priority>
