@@ -1,0 +1,5 @@
+blank_issues_enabled: true
+contact_links:
+  - name: Try the app first
+    url: https://ihateimages.com
+    about: Use the live tools before filing an issue, in case it is already fixed.
