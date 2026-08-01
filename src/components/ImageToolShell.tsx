@@ -5,6 +5,7 @@ import ToolContent from './ToolContent';
 import { processImage } from '../lib/imageEngine';
 import { EXT, type ProcessOptions, type ProcessResult, type TargetFormat } from '../lib/imageTypes';
 import { formatBytes, renameExt, savings } from '../lib/format';
+import { nextPaint } from '../lib/schedule';
 
 interface ResultRow {
   name: string;
@@ -143,6 +144,8 @@ export default function ImageToolShell({
     setNeedsImage(false);
     setBusy(true);
     cleanupUrls();
+    // Let the busy state paint before heavy encoding starts so the click stays responsive (good INP).
+    await nextPaint();
     const next: ResultRow[] = [];
     for (const file of files) {
       try {
@@ -154,6 +157,8 @@ export default function ImageToolShell({
         next.push({ name: file.name, inSize: file.size, error: (e as Error).message });
       }
       setRows([...next]);
+      // Yield a frame between files so each result paints and the page stays responsive.
+      await nextPaint();
     }
     setBusy(false);
   }, [files, buildOptions, processFile, cleanupUrls]);

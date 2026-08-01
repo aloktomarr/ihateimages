@@ -3,6 +3,7 @@ import Dropzone from '../components/Dropzone';
 import Spinner from '../components/Spinner';
 import ToolContent from '../components/ToolContent';
 import { formatBytes, renameExt } from '../lib/format';
+import { nextPaint } from '../lib/schedule';
 
 type Status = 'idle' | 'working' | 'done' | 'error';
 type BgMode = 'transparent' | 'color';
@@ -76,6 +77,8 @@ export default function BackgroundRemover() {
     setStatus('working');
     setError('');
     setProgress('Loading AI model');
+    // Paint the loading state before pulling in the model so the click stays responsive (good INP).
+    await nextPaint();
     try {
       const { removeBackground } = await import('@imgly/background-removal');
       const transparent = await removeBackground(file, {

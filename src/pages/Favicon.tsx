@@ -4,6 +4,7 @@ import Spinner from '../components/Spinner';
 import ToolContent from '../components/ToolContent';
 import { generateFavicons } from '../lib/favicon';
 import { formatBytes } from '../lib/format';
+import { nextPaint } from '../lib/schedule';
 
 export default function Favicon() {
   const [busy, setBusy] = useState(false);
@@ -25,6 +26,8 @@ export default function Favicon() {
       setArchive(null);
       setError('');
       setBusy(true);
+      // Paint the busy state before building the icons so the click stays responsive (good INP).
+      await nextPaint();
       try {
         const { archive: blob, previews: p } = await generateFavicons(files[0]);
         p.forEach((x) => urlsRef.current.push(x.url));

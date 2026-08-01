@@ -8,6 +8,7 @@ import { processImage } from '../lib/imageEngine';
 import { type CropRect, type ProcessOptions } from '../lib/imageTypes';
 import { formatBytes, renameExt } from '../lib/format';
 import { PASSPORT_PRESETS, mmToPx } from '../lib/passport';
+import { nextPaint } from '../lib/schedule';
 
 interface Result {
   url: string;
@@ -50,6 +51,8 @@ export default function PassportPhoto() {
     if (!file || !rect) return;
     setBusy(true);
     clearResult();
+    // Paint the busy state before the encode so the click stays responsive (good INP).
+    await nextPaint();
     try {
       const opts: ProcessOptions = {
         targetFormat: 'image/jpeg',

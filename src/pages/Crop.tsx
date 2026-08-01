@@ -8,6 +8,7 @@ import ToolContent from '../components/ToolContent';
 import { processImage } from '../lib/imageEngine';
 import { EXT, normalizeType, type CropRect, type ProcessOptions, type TargetFormat } from '../lib/imageTypes';
 import { formatBytes, renameExt } from '../lib/format';
+import { nextPaint } from '../lib/schedule';
 
 const ASPECTS: { label: string; value: number | undefined }[] = [
   { label: 'Free', value: undefined },
@@ -58,6 +59,8 @@ export default function Crop() {
     if (!file || !rect) return;
     setBusy(true);
     clearResult();
+    // Paint the busy state before the encode so the click stays responsive (good INP).
+    await nextPaint();
     try {
       const targetFormat: TargetFormat = format === 'same' ? normalizeType(file.type) : format;
       const opts: ProcessOptions = {

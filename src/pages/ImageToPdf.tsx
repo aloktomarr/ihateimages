@@ -5,6 +5,7 @@ import Spinner from '../components/Spinner';
 import ToolContent from '../components/ToolContent';
 import { imagesToPdf, type Orientation, type PageMode } from '../lib/pdf';
 import { formatBytes } from '../lib/format';
+import { nextPaint } from '../lib/schedule';
 
 export default function ImageToPdf() {
   const [files, setFiles] = useState<File[]>([]);
@@ -42,6 +43,8 @@ export default function ImageToPdf() {
     if (!files.length) return;
     setBusy(true);
     setPdfUrl(null);
+    // Paint the busy state before building the PDF so the click stays responsive (good INP).
+    await nextPaint();
     try {
       const blob = await imagesToPdf(files, {
         pageMode,
