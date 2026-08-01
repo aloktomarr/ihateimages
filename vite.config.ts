@@ -42,7 +42,7 @@ export default defineConfig({
         ],
       },
       manifest: {
-        name: 'iHateImages — Private Image Toolkit',
+        name: 'iHateImages - Private Image Toolkit',
         short_name: 'iHateImages',
         description:
           'Compress, convert, resize & clean images 100% in your browser. No upload, no watermark, no sign-up.',

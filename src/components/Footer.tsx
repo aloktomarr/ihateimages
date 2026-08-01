@@ -1,5 +1,6 @@
 import { Link } from 'react-router-dom';
 import { Icon } from './icons';
+import ProductHuntBadge from './ProductHuntBadge';
 import { prefetchRoute } from '../lib/routes';
 
 const YEAR = new Date().getFullYear();
@@ -43,6 +44,9 @@ export default function Footer() {
               Free, private image tools that run 100% in your browser. No upload, no watermark, no
               sign-up.
             </p>
+            <div className="mt-4">
+              <ProductHuntBadge />
+            </div>
           </div>
 
           <FooterCol
