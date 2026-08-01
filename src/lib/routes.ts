@@ -18,6 +18,7 @@ const loaders: Record<string, Loader> = {
   '/image-to-pdf': () => import('../pages/ImageToPdf'),
   '/about': () => import('../pages/About'),
   '/privacy': () => import('../pages/Privacy'),
+  '/integrations': () => import('../pages/Integrations'),
   '/blog': () => import('../pages/Blog'),
 };
 
@@ -39,6 +40,7 @@ export const Lazy = {
   ImageToPdf: lazy(loaders['/image-to-pdf']),
   About: lazy(loaders['/about']),
   Privacy: lazy(loaders['/privacy']),
+  Integrations: lazy(loaders['/integrations']),
   Blog: lazy(loaders['/blog']),
   ConvertLanding: lazy(convertLandingLoader),
   BlogPost: lazy(blogPostLoader),

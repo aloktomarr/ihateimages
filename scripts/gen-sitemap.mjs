@@ -24,6 +24,7 @@ const staticRoutes = [
   { path: '/image-to-pdf', priority: '0.8', changefreq: 'monthly' },
   { path: '/about', priority: '0.4', changefreq: 'yearly' },
   { path: '/privacy', priority: '0.3', changefreq: 'yearly' },
+  { path: '/integrations', priority: '0.5', changefreq: 'monthly' },
 ];
 
 const { conversions } = JSON.parse(

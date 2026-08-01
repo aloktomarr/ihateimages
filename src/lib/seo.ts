@@ -239,6 +239,12 @@ export const SEO_BY_PATH: Record<string, SeoMeta> = {
       'iHateImages processes images entirely in your browser. No uploads and no accounts. Read how your data is handled.',
     jsonLd: crumbs('Privacy', '/privacy'),
   },
+  '/integrations': {
+    title: 'Integrations and Workflow - Share, Open With, URL Presets | iHateImages',
+    description:
+      'Send images to iHateImages from your phone share sheet, the desktop Open with menu, a right-click browser extension, or URL presets. Everything still runs 100% in your browser.',
+    jsonLd: crumbs('Integrations', '/integrations'),
+  },
 };
 
 // Programmatic conversion landing pages (Level 2 SEO): one entry per format pair.

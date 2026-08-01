@@ -6,6 +6,7 @@ import { processImage } from '../lib/imageEngine';
 import { EXT, type ProcessOptions, type ProcessResult, type TargetFormat } from '../lib/imageTypes';
 import { formatBytes, renameExt, savings } from '../lib/format';
 import { nextPaint } from '../lib/schedule';
+import { onIncomingImage, takeIncomingImage } from '../lib/incoming';
 
 interface ResultRow {
   name: string;
@@ -135,6 +136,13 @@ export default function ImageToolShell({
     },
     [cleanupUrls, cleanupPreviews, onFilesChange],
   );
+
+  // Load images delivered from outside the page (share sheet, "Open with", extension, ?src=).
+  useEffect(() => {
+    const existing = takeIncomingImage();
+    if (existing) onFiles([existing]);
+    return onIncomingImage((file) => onFiles([file]));
+  }, [onFiles]);
 
   const run = useCallback(async () => {
     if (!files.length) {

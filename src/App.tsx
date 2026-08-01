@@ -1,10 +1,11 @@
 import { Suspense, useEffect } from 'react';
-import { Routes, Route } from 'react-router-dom';
+import { Routes, Route, Navigate } from 'react-router-dom';
 import TopNav from './components/TopNav';
 import Footer from './components/Footer';
 import Spinner from './components/Spinner';
 import Home from './pages/Home';
 import RouteSeo from './components/RouteSeo';
+import IncomingImageBridge from './components/IncomingImageBridge';
 import { Lazy, prefetchAllIdle } from './lib/routes';
 
 // Tool pages are separate lazy chunks (route-based code splitting) and are also prefetched on
@@ -26,6 +27,7 @@ const {
   Blog,
   ConvertLanding,
   BlogPost,
+  Integrations,
 } = Lazy;
 
 export default function App() {
@@ -36,6 +38,7 @@ export default function App() {
   return (
     <div className="min-h-screen">
       <RouteSeo />
+      <IncomingImageBridge />
       <TopNav />
       <main className="mx-auto w-full max-w-[1600px] px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
         <Suspense fallback={<div className="py-24"><Spinner label="Loading tool" /></div>}>
@@ -57,6 +60,8 @@ export default function App() {
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/blog" element={<Blog />} />
             <Route path="/blog/:slug" element={<BlogPost />} />
+            <Route path="/integrations" element={<Integrations />} />
+            <Route path="/share-target" element={<Navigate to="/compress" replace />} />
           </Routes>
         </Suspense>
       </main>

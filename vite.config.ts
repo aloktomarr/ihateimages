@@ -14,6 +14,8 @@ export default defineConfig({
       injectRegister: 'auto',
       includeAssets: ['favicon.svg', 'robots.txt'],
       workbox: {
+        // Pulled into the generated service worker to handle Web Share Target POSTs.
+        importScripts: ['sw-share.js'],
         // Precache the app shell, fonts and the small codec wasm for instant, offline use.
         globPatterns: ['**/*.{js,css,html,svg,png,woff2,wasm}'],
         // The ~24 MB ONNX runtime wasm (background remover) is far too big to precache; it is
@@ -51,6 +53,31 @@ export default defineConfig({
         display: 'standalone',
         start_url: '/',
         icons: [{ src: 'favicon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' }],
+        shortcuts: [
+          { name: 'Compress', short_name: 'Compress', url: '/compress' },
+          { name: 'Convert', short_name: 'Convert', url: '/convert' },
+          { name: 'Remove background', short_name: 'Background', url: '/background-remover' },
+          { name: 'Crop', short_name: 'Crop', url: '/crop' },
+        ],
+        file_handlers: [
+          {
+            action: '/compress',
+            accept: {
+              'image/*': ['.png', '.jpg', '.jpeg', '.webp', '.avif', '.gif', '.bmp', '.heic', '.heif'],
+            },
+          },
+        ],
+        share_target: {
+          action: '/share-target',
+          method: 'POST',
+          enctype: 'multipart/form-data',
+          params: {
+            title: 'title',
+            text: 'text',
+            url: 'url',
+            files: [{ name: 'file', accept: ['image/*'] }],
+          },
+        },
       },
     }),
   ],

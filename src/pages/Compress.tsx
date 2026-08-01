@@ -1,4 +1,5 @@
-import { useCallback, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import ImageToolShell from '../components/ImageToolShell';
 import Select from '../components/Select';
 import Slider from '../components/Slider';
@@ -18,8 +19,43 @@ export default function Compress() {
   const [longEdge, setLongEdge] = useState(2000);
   const [targetKb, setTargetKb] = useState(100);
   const [allowDownscale, setAllowDownscale] = useState(true);
+  const [searchParams] = useSearchParams();
 
   const isPng = format === 'image/png';
+
+  // Apply presets from the URL once on load, e.g. /compress?target=100&format=jpeg.
+  useEffect(() => {
+    const target = searchParams.get('target');
+    const modeParam = searchParams.get('mode');
+    const formatParam = searchParams.get('format');
+    const qParam = searchParams.get('q');
+    if (target) {
+      const kb = parseInt(target.replace(/kb$/i, ''), 10);
+      if (kb > 0) {
+        setTargetKb(Math.max(5, kb));
+        setMode('target');
+      }
+    }
+    if (modeParam === 'target' || modeParam === 'quality') setMode(modeParam);
+    if (formatParam) {
+      const map: Record<string, FormatChoice> = {
+        webp: 'image/webp',
+        jpeg: 'image/jpeg',
+        jpg: 'image/jpeg',
+        png: 'image/png',
+        avif: 'image/avif',
+        same: 'same',
+      };
+      const chosen = map[formatParam.toLowerCase()];
+      if (chosen) setFormat(chosen);
+    }
+    if (qParam) {
+      const q = parseInt(qParam, 10);
+      if (q >= 1 && q <= 100) setQuality(q);
+    }
+    // Run once on mount.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const buildOptions = useCallback(
     (file: File): ProcessOptions => {

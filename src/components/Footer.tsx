@@ -73,6 +73,7 @@ export default function Footer() {
             links={[
               ['About', '/about'],
               ['Blog', '/blog'],
+              ['Integrations', '/integrations'],
               ['Privacy', '/privacy'],
             ]}
           />

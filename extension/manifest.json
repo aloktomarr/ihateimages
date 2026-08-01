@@ -1,0 +1,18 @@
+{
+  "manifest_version": 3,
+  "name": "iHateImages - right-click compress",
+  "version": "1.0.0",
+  "description": "Right-click any image on the web to open it in iHateImages for private, in-browser compression. Nothing is uploaded to a server.",
+  "permissions": ["contextMenus", "storage", "unlimitedStorage"],
+  "host_permissions": ["<all_urls>"],
+  "background": {
+    "service_worker": "background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://ihateimages.com/*"],
+      "js": ["content.js"],
+      "run_at": "document_start"
+    }
+  ]
+}
