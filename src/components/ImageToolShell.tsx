@@ -21,6 +21,8 @@ interface Props {
   buildOptions: (file: File) => ProcessOptions;
   controls?: React.ReactNode;
   onFilesChange?: (files: File[]) => void;
+  /** Optional custom per-file processor that overrides buildOptions (used by compress to target size). */
+  processFile?: (file: File) => Promise<ProcessResult>;
   /** Route path (e.g. "/compress") used to render the on-page SEO content block. */
   slug?: string;
 }
@@ -84,6 +86,7 @@ export default function ImageToolShell({
   buildOptions,
   controls,
   onFilesChange,
+  processFile,
   slug,
 }: Props) {
   const [files, setFiles] = useState<File[]>([]);
@@ -143,7 +146,7 @@ export default function ImageToolShell({
     const next: ResultRow[] = [];
     for (const file of files) {
       try {
-        const out = await processImage(file, buildOptions(file));
+        const out = processFile ? await processFile(file) : await processImage(file, buildOptions(file));
         const url = URL.createObjectURL(out.blob);
         urlsRef.current.push(url);
         next.push({ name: file.name, inSize: file.size, out, url });
@@ -153,7 +156,7 @@ export default function ImageToolShell({
       setRows([...next]);
     }
     setBusy(false);
-  }, [files, buildOptions, cleanupUrls]);
+  }, [files, buildOptions, processFile, cleanupUrls]);
 
   const downloadAll = useCallback(async () => {
     const done = rows.filter((r) => r.out);

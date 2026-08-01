@@ -1,26 +1,37 @@
-import { useTheme } from '../theme';
-
-// Product Hunt "featured" badge. Switches between the light and dark badge to match the theme.
+// A clean "Featured on Product Hunt" badge that links to the listing. We use our own badge rather
+// than Product Hunt's dynamic image, because that image shows "???" until the product has votes.
 export default function ProductHuntBadge() {
-  const { theme } = useTheme();
-  const badgeTheme = theme === 'dark' ? 'dark' : 'light';
-
   return (
     <a
-      href="https://www.producthunt.com/products/ihateimages?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-ihateimages"
+      href="https://www.producthunt.com/products/ihateimages?utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-ihateimages"
       target="_blank"
       rel="noopener noreferrer"
-      className="inline-block"
       aria-label="iHateImages on Product Hunt"
+      className="inline-flex items-center gap-2.5 rounded-xl border border-line bg-panel px-3 py-2 transition hover:bg-hover"
     >
-      <img
-        src={`https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1211926&theme=${badgeTheme}`}
-        alt="iHateImages - Free image toolkit that does everything in your browser | Product Hunt"
-        width={250}
-        height={54}
-        loading="lazy"
-        decoding="async"
-      />
+      <span
+        className="grid h-8 w-8 shrink-0 place-items-center rounded-lg"
+        style={{ backgroundColor: '#da552f' }}
+      >
+        <svg
+          viewBox="0 0 24 24"
+          className="h-4 w-4"
+          fill="none"
+          stroke="#ffffff"
+          strokeWidth={2.6}
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          aria-hidden
+        >
+          <path d="M6 15l6-6 6 6" />
+        </svg>
+      </span>
+      <span className="leading-tight">
+        <span className="block text-[10px] font-semibold uppercase tracking-wide text-muted">
+          Featured on
+        </span>
+        <span className="block text-sm font-extrabold text-fg">Product Hunt</span>
+      </span>
     </a>
   );
 }
