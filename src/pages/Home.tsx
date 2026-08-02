@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { TOOLS } from '../lib/tools';
 import { Icon, type IconName } from '../components/icons';
+import WorkflowGuide from '../components/WorkflowGuide';
 import { FAQ } from '../lib/seo';
 import { POPULAR_CONVERSIONS } from '../lib/landing';
 import { prefetchConvertLanding } from '../lib/routes';
@@ -10,45 +11,6 @@ const BADGES: { icon: IconName; label: string }[] = [
   { icon: 'ban', label: 'No watermark' },
   { icon: 'bolt', label: 'Works offline' },
   { icon: 'phone', label: 'HEIC supported' },
-];
-
-const WORKFLOW: { icon: IconName; title: string; blurb: string; to: string }[] = [
-  {
-    icon: 'phone',
-    title: 'Phone share sheet',
-    blurb: 'Share a photo to iHateImages from any app on your phone.',
-    to: '/integrations',
-  },
-  {
-    icon: 'upload',
-    title: 'Open with on desktop',
-    blurb: 'Right-click an image file and open it straight in the tool.',
-    to: '/integrations',
-  },
-  {
-    icon: 'link',
-    title: 'URL presets',
-    blurb: 'Bookmark a preset like compress to 100 KB, or link to it.',
-    to: '/compress?target=100',
-  },
-  {
-    icon: 'puzzle',
-    title: 'Browser extension',
-    blurb: 'Right-click any image on the web to compress it here.',
-    to: '/integrations',
-  },
-  {
-    icon: 'download',
-    title: 'Install the app',
-    blurb: 'Add it to your phone or desktop. Works offline once loaded.',
-    to: '/integrations',
-  },
-  {
-    icon: 'bolt',
-    title: 'App shortcuts',
-    blurb: 'Jump straight to a tool from the installed app icon.',
-    to: '/integrations',
-  },
 ];
 
 export default function Home() {
@@ -132,23 +94,11 @@ export default function Home() {
           </Link>
         </div>
         <p className="mt-2 max-w-2xl text-sm text-muted">
-          Bring images into the tools from your phone, your desktop, or a link. Everything still runs
-          100% in your browser, with no upload.
+          Send images into the tools from your phone (iPhone and Android), your desktop, or a saved
+          link. Everything still runs 100% in your browser, with no upload.
         </p>
-        <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-3">
-          {WORKFLOW.map((w) => (
-            <Link key={w.title} to={w.to} className="card group transition hover:bg-hover">
-              <div className="flex items-start gap-3">
-                <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-line text-accent">
-                  <Icon name={w.icon} className="h-5 w-5" />
-                </span>
-                <div>
-                  <h3 className="font-bold group-hover:text-accent">{w.title}</h3>
-                  <p className="mt-0.5 text-sm text-muted">{w.blurb}</p>
-                </div>
-              </div>
-            </Link>
-          ))}
+        <div className="mt-5">
+          <WorkflowGuide />
         </div>
       </section>
 
