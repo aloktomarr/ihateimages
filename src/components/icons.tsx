@@ -22,7 +22,10 @@ export type IconName =
   | 'chevronDown'
   | 'upload'
   | 'rotate'
-  | 'pdf';
+  | 'pdf'
+  | 'share'
+  | 'link'
+  | 'puzzle';
 
 const PATHS: Record<IconName, JSX.Element> = {
   logo: (
@@ -106,6 +109,24 @@ const PATHS: Record<IconName, JSX.Element> = {
       <path d="M14 3v5h5" />
       <path d="M7 3h7l5 5v11a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2z" />
     </>
+  ),
+  share: (
+    <>
+      <circle cx="6" cy="12" r="2.5" />
+      <circle cx="18" cy="6" r="2.5" />
+      <circle cx="18" cy="18" r="2.5" />
+      <path d="M8.2 10.8 15.8 7.2M8.2 13.2 15.8 16.8" />
+    </>
+  ),
+  link: (
+    <>
+      <path d="M9 15l6-6" />
+      <path d="M10.5 6.5l1-1a3.5 3.5 0 0 1 5 5l-1 1" />
+      <path d="M13.5 17.5l-1 1a3.5 3.5 0 0 1-5-5l1-1" />
+    </>
+  ),
+  puzzle: (
+    <path d="M9 4.5a2 2 0 1 1 4 0V6h3a1 1 0 0 1 1 1v3h1.5a2 2 0 1 1 0 4H17v3a1 1 0 0 1-1 1h-3v-1.5a2 2 0 1 0-4 0V18H6a1 1 0 0 1-1-1v-3H4.5a2 2 0 1 1 0-4H6V7a1 1 0 0 1 1-1h2V4.5z" />
   ),
 };
 

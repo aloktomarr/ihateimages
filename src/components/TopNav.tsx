@@ -34,12 +34,16 @@ const PRIMARY_NAV: NavItem[] = [
     .filter((t) => PRIMARY.has(t.path))
     .map((t) => ({ to: t.path, label: shortLabel(t.path, t.title), icon: t.icon })),
 ];
-const MORE_NAV: NavItem[] = live
-  .filter((t) => !PRIMARY.has(t.path))
-  .map((t) => ({ to: t.path, label: t.title, icon: t.icon }));
+const MORE_NAV: NavItem[] = [
+  ...live
+    .filter((t) => !PRIMARY.has(t.path))
+    .map((t) => ({ to: t.path, label: t.title, icon: t.icon })),
+  { to: '/integrations', label: 'Integrations', icon: 'link' },
+];
 const ALL_NAV: NavItem[] = [
   { to: '/', label: 'Home', icon: 'home' },
   ...live.map((t) => ({ to: t.path, label: shortLabel(t.path, t.title), icon: t.icon })),
+  { to: '/integrations', label: 'Integrations', icon: 'link' },
 ];
 
 function MoreMenu({ items }: { items: NavItem[] }) {
