@@ -25,25 +25,25 @@ const shortLabel = (path: string, title: string) => SHORT[path] ?? title;
 const live = TOOLS.filter((t) => t.live);
 
 // A handful of high-traffic tools sit inline; the rest live under a "More" menu so the bar
-// never overflows as tools are added.
-const PRIMARY = new Set(['/compress', '/convert', '/resize', '/background-remover', '/crop']);
+// never overflows as tools are added. Integrations sits inline so it is directly visible.
+const PRIMARY = new Set(['/compress', '/convert', '/resize', '/background-remover']);
+
+const INTEGRATIONS_NAV: NavItem = { to: '/integrations', label: 'Integrations', icon: 'link' };
 
 const PRIMARY_NAV: NavItem[] = [
   { to: '/', label: 'Home', icon: 'home' },
   ...live
     .filter((t) => PRIMARY.has(t.path))
     .map((t) => ({ to: t.path, label: shortLabel(t.path, t.title), icon: t.icon })),
+  INTEGRATIONS_NAV,
 ];
-const MORE_NAV: NavItem[] = [
-  ...live
-    .filter((t) => !PRIMARY.has(t.path))
-    .map((t) => ({ to: t.path, label: t.title, icon: t.icon })),
-  { to: '/integrations', label: 'Integrations', icon: 'link' },
-];
+const MORE_NAV: NavItem[] = live
+  .filter((t) => !PRIMARY.has(t.path))
+  .map((t) => ({ to: t.path, label: t.title, icon: t.icon }));
 const ALL_NAV: NavItem[] = [
   { to: '/', label: 'Home', icon: 'home' },
   ...live.map((t) => ({ to: t.path, label: shortLabel(t.path, t.title), icon: t.icon })),
-  { to: '/integrations', label: 'Integrations', icon: 'link' },
+  INTEGRATIONS_NAV,
 ];
 
 function MoreMenu({ items }: { items: NavItem[] }) {
