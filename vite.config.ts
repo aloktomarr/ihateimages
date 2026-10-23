@@ -48,8 +48,8 @@ export default defineConfig({
         short_name: 'iHateImages',
         description:
           'Compress, convert, resize & clean images 100% in your browser. No upload, no watermark, no sign-up.',
-        theme_color: '#1d9bf0',
-        background_color: '#ffffff',
+        theme_color: '#0e0f11',
+        background_color: '#f4f5f7',
         display: 'standalone',
         start_url: '/',
         icons: [{ src: 'favicon.svg', sizes: 'any', type: 'image/svg+xml', purpose: 'any' }],

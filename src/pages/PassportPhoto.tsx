@@ -2,13 +2,18 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import Dropzone from '../components/Dropzone';
 import CropField from '../components/CropField';
 import Select from '../components/Select';
-import Spinner from '../components/Spinner';
 import ToolContent from '../components/ToolContent';
+import ToolHeader from '../components/ToolHeader';
+import { Field, Segmented } from '../components/controls';
+import { Icon } from '../components/icons';
+import { MobileActionBar, SettingsPanel, StageCard, WorkspaceGrid } from '../components/Workspace';
 import { processImage } from '../lib/imageEngine';
 import { type CropRect, type ProcessOptions } from '../lib/imageTypes';
 import { formatBytes, renameExt } from '../lib/format';
 import { PASSPORT_PRESETS, mmToPx } from '../lib/passport';
 import { nextPaint } from '../lib/schedule';
+import { useIncomingFiles } from '../lib/incoming';
+import { downloadUrl } from '../lib/download';
 
 interface Result {
   url: string;
@@ -46,6 +51,7 @@ export default function PassportPhoto() {
     },
     [clearResult],
   );
+  useIncomingFiles(onFiles);
 
   const run = useCallback(async () => {
     if (!file || !rect) return;
@@ -71,82 +77,127 @@ export default function PassportPhoto() {
 
   const download = () => {
     if (!result || !file) return;
-    const a = document.createElement('a');
-    a.href = result.url;
-    a.download = renameExt(file.name, 'jpg');
-    a.click();
+    downloadUrl(result.url, renameExt(file.name, 'jpg'));
   };
 
   return (
-    <section>
-      <h1 className="mb-1 text-2xl font-extrabold tracking-tight">Passport &amp; ID photo</h1>
-      <p className="mb-5 max-w-2xl text-[15px] text-muted">
-        Crop your photo to an official passport or ID size with the correct pixel dimensions for
-        printing. Everything stays on your device.
-      </p>
+    <div className="container-page">
+      <ToolHeader
+        title="Passport & ID photo"
+        description="Crop your photo to an official passport or ID size, with the exact pixel dimensions for printing. Everything stays on your device."
+      />
 
-      {!file && <Dropzone multiple={false} onFiles={onFiles} />}
-
-      {file && (
-        <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
-          <CropField file={file} aspect={aspect} onCropChange={setRect} />
-
-          <aside className="space-y-4">
-            <label className="block">
-              <span className="mb-1 block text-sm font-medium text-fg">Photo size</span>
-              <Select value={presetId} onChange={(e) => setPresetId(e.target.value)}>
-                {PASSPORT_PRESETS.map((p) => (
-                  <option key={p.id} value={p.id}>
-                    {p.label}
-                  </option>
-                ))}
-              </Select>
-            </label>
-
-            <label className="block">
-              <span className="mb-1 block text-sm font-medium text-fg">Print resolution</span>
-              <Select value={dpi} onChange={(e) => setDpi(Number(e.target.value))}>
-                <option value={300}>300 DPI (standard)</option>
-                <option value={600}>600 DPI (high)</option>
-              </Select>
-            </label>
-
-            <div className="card p-3 text-xs text-muted">
-              Output: <span className="font-semibold text-fg">{outW}×{outH}px</span> at {dpi} DPI (
-              {preset.wMm}×{preset.hMm}mm).
-            </div>
-
-            <button type="button" onClick={run} disabled={busy || !rect} className="btn-primary w-full">
-              {busy ? 'Working' : 'Create photo'}
-            </button>
-            {busy && <Spinner label="Processing on your device" />}
-            <button
-              type="button"
-              onClick={() => {
+      <WorkspaceGrid>
+        <div className="min-w-0">
+          {!file ? (
+            <Dropzone multiple={false} onFiles={onFiles} />
+          ) : (
+            <StageCard
+              file={file}
+              onReplace={onFiles}
+              onClear={() => {
                 clearResult();
                 setFile(null);
               }}
-              className="btn-ghost w-full"
+              disabled={busy}
+              footer={
+                result && (
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <img src={result.url} alt="Passport photo result" className="h-14 w-auto shrink-0 rounded-md shadow-soft" />
+                      <p className="tabular text-[13.5px] text-muted">
+                        <span className="font-semibold text-fg">Print-ready</span> &middot; {result.w}&times;{result.h}{' '}
+                        &middot; {formatBytes(result.size)} &middot; JPEG
+                      </p>
+                    </div>
+                    <button type="button" onClick={download} className="btn btn-primary hidden sm:inline-flex">
+                      <Icon name="download" className="h-4 w-4" />
+                      Download
+                    </button>
+                  </div>
+                )
+              }
             >
-              Choose another image
-            </button>
+              <CropField file={file} aspect={aspect} onCropChange={setRect} />
+              <p className="mt-3 px-1 text-[12.5px] text-muted">
+                Centre your face in the box, with a little space above your head.
+              </p>
+            </StageCard>
+          )}
+        </div>
 
-            {result && (
-              <div className="card space-y-2 p-3">
-                <img src={result.url} alt="Passport result" className="mx-auto rounded-lg" style={{ maxWidth: 200 }} />
-                <p className="text-xs text-muted">
-                  {result.w}×{result.h} · {formatBytes(result.size)} · JPEG
-                </p>
-                <button type="button" onClick={download} className="btn-primary w-full">
+        <SettingsPanel
+          footer={
+            <div className={file ? 'hidden lg:block' : ''}>
+              <button type="button" onClick={run} disabled={busy || !rect} className="btn btn-primary btn-lg w-full">
+                {busy ? 'Creating' : 'Create photo'}
+              </button>
+              {result && (
+                <button type="button" onClick={download} className="btn btn-secondary btn-lg mt-2 w-full">
+                  <Icon name="download" className="h-4 w-4" />
                   Download
                 </button>
-              </div>
-            )}
-          </aside>
-        </div>
+              )}
+            </div>
+          }
+        >
+          <Field label="Photo size">
+            <Select value={presetId} onChange={(e) => setPresetId(e.target.value)}>
+              {PASSPORT_PRESETS.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.label}
+                </option>
+              ))}
+            </Select>
+          </Field>
+
+          <Segmented
+            label="Print resolution"
+            value={dpi}
+            onChange={setDpi}
+            options={[
+              { value: 300, label: '300 DPI' },
+              { value: 600, label: '600 DPI' },
+            ]}
+            hint="300 DPI is the standard for photo printing."
+          />
+
+          <div className="flex items-center gap-4 rounded-xl bg-subtle p-4">
+            <span
+              className="shrink-0 rounded-[3px] border-2 border-fg bg-surface"
+              style={{ width: 30 * Math.min(1, aspect), height: 30 / Math.max(1, aspect) }}
+              aria-hidden
+            />
+            <p className="tabular text-[13px] leading-snug text-muted">
+              Output <span className="font-semibold text-fg">{outW}&times;{outH}px</span>
+              <br />
+              {preset.wMm}&times;{preset.hMm}mm at {dpi} DPI
+            </p>
+          </div>
+        </SettingsPanel>
+      </WorkspaceGrid>
+
+      {file && (
+        <MobileActionBar busy={busy}>
+          {result ? (
+            <>
+              <button type="button" onClick={run} disabled={busy || !rect} className="btn btn-secondary h-[3.25rem] flex-1">
+                Redo
+              </button>
+              <button type="button" onClick={download} className="btn btn-primary btn-lg flex-1">
+                <Icon name="download" className="h-4 w-4" />
+                Download
+              </button>
+            </>
+          ) : (
+            <button type="button" onClick={run} disabled={busy || !rect} className="btn btn-primary btn-lg flex-1">
+              {busy ? 'Creating' : 'Create photo'}
+            </button>
+          )}
+        </MobileActionBar>
       )}
 
       <ToolContent slug="/passport-photo" />
-    </section>
+    </div>
   );
 }

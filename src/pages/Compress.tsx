@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import ImageToolShell from '../components/ImageToolShell';
-import Select from '../components/Select';
 import Slider from '../components/Slider';
+import { Field, FormatPicker, Presets, Segmented, Toggle } from '../components/controls';
 import { compressToTarget } from '../lib/targetSize';
 import { normalizeType, type ProcessOptions, type TargetFormat } from '../lib/imageTypes';
 
@@ -83,36 +83,21 @@ export default function Compress() {
 
   const controls = (
     <>
-      <div>
-        <span className="mb-1 block text-sm font-medium text-fg">Compress by</span>
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => setMode('quality')}
-            className={`btn-ghost flex-1 ${mode === 'quality' ? 'border-accent text-accent' : ''}`}
-          >
-            Quality
-          </button>
-          <button
-            type="button"
-            onClick={() => setMode('target')}
-            className={`btn-ghost flex-1 ${mode === 'target' ? 'border-accent text-accent' : ''}`}
-          >
-            Target size
-          </button>
-        </div>
-      </div>
+      <Segmented
+        label="Compress by"
+        value={mode}
+        onChange={setMode}
+        options={[
+          { value: 'quality', label: 'Quality' },
+          { value: 'target', label: 'Target size' },
+        ]}
+      />
 
-      <label className="block">
-        <span className="mb-1 block text-sm font-medium text-fg">Output format</span>
-        <Select value={format} onChange={(e) => setFormat(e.target.value as FormatChoice)}>
-          <option value="image/webp">WebP (best size)</option>
-          <option value="image/avif">AVIF (smallest)</option>
-          <option value="image/jpeg">JPEG</option>
-          <option value="image/png">PNG (lossless)</option>
-          <option value="same">Keep original</option>
-        </Select>
-      </label>
+      <FormatPicker
+        value={format}
+        onChange={setFormat}
+        options={['image/webp', 'image/avif', 'image/jpeg', 'image/png', 'same'] as FormatChoice[]}
+      />
 
       {mode === 'quality' ? (
         <>
@@ -124,12 +109,15 @@ export default function Compress() {
             suffix="%"
             onChange={setQuality}
             disabled={isPng}
+            hint={isPng ? 'PNG is lossless, so quality does not apply.' : '75 to 85 is the sweet spot for photos.'}
           />
 
-          <label className="flex items-center gap-2 text-sm text-fg">
-            <input type="checkbox" checked={limit} onChange={(e) => setLimit(e.target.checked)} />
-            Limit dimensions
-          </label>
+          <Toggle
+            label="Limit dimensions"
+            description="Cap the long edge to shrink even further."
+            checked={limit}
+            onChange={setLimit}
+          />
           {limit && (
             <Slider
               label="Max long edge"
@@ -144,47 +132,34 @@ export default function Compress() {
         </>
       ) : (
         <>
-          <label className="block">
-            <span className="mb-1 block text-sm font-medium text-fg">Maximum size</span>
-            <div className="flex items-center gap-2">
+          <Field
+            label="Maximum file size"
+            hint="For forms and uploads with a size limit. WebP and JPEG get there best; PNG can only shrink by losing pixels."
+          >
+            <div className="relative">
               <input
                 type="number"
                 min={5}
                 value={targetKb}
                 onChange={(e) => setTargetKb(Math.max(5, Number(e.target.value) || 0))}
-                className="field"
+                className="field tabular pr-12 text-[15px] font-semibold"
+                aria-label="Maximum file size in KB"
               />
-              <span className="text-sm text-muted">KB</span>
+              <span className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-[13px] font-semibold text-muted">
+                KB
+              </span>
             </div>
-          </label>
+            <div className="mt-2.5">
+              <Presets options={SIZE_PRESETS} value={targetKb} onChange={setTargetKb} format={(kb) => `${kb} KB`} />
+            </div>
+          </Field>
 
-          <div className="flex flex-wrap gap-2">
-            {SIZE_PRESETS.map((kb) => (
-              <button
-                key={kb}
-                type="button"
-                onClick={() => setTargetKb(kb)}
-                className={`btn-ghost px-3 py-1 text-xs ${targetKb === kb ? 'border-accent text-accent' : ''}`}
-              >
-                {kb} KB
-              </button>
-            ))}
-          </div>
-
-          <label className="flex items-center gap-2 text-sm text-fg">
-            <input
-              type="checkbox"
-              checked={allowDownscale}
-              onChange={(e) => setAllowDownscale(e.target.checked)}
-            />
-            Shrink dimensions if needed
-          </label>
-
-          <p className="text-xs text-muted">
-            Useful for government forms and any upload with a size limit. The image is compressed to
-            fit under the size you set. PNG can only get small by shrinking dimensions, so WebP or
-            JPEG work best here.
-          </p>
+          <Toggle
+            label="Shrink dimensions if needed"
+            description="Lets very small targets succeed."
+            checked={allowDownscale}
+            onChange={setAllowDownscale}
+          />
         </>
       )}
     </>
@@ -193,7 +168,7 @@ export default function Compress() {
   return (
     <ImageToolShell
       title="Compress images"
-      description="Shrink JPEG, PNG, WebP, AVIF and HEIC. Compress by quality or down to a maximum file size. No watermark, no upload."
+      description="Shrink JPEG, PNG, WebP, AVIF and HEIC by quality, or down to an exact file size. Full resolution, no watermark, no upload."
       actionLabel="Compress"
       buildOptions={buildOptions}
       processFile={mode === 'target' ? processFile : undefined}

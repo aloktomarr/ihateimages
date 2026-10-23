@@ -1,14 +1,19 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import Dropzone from '../components/Dropzone';
 import CropField from '../components/CropField';
-import Select from '../components/Select';
 import Slider from '../components/Slider';
-import Spinner from '../components/Spinner';
 import ToolContent from '../components/ToolContent';
+import ToolHeader from '../components/ToolHeader';
+import { Field, FormatPicker } from '../components/controls';
+import { Icon } from '../components/icons';
+import { MobileActionBar, SettingsPanel, StageCard, WorkspaceGrid } from '../components/Workspace';
 import { processImage } from '../lib/imageEngine';
 import { EXT, normalizeType, type CropRect, type ProcessOptions, type TargetFormat } from '../lib/imageTypes';
 import { formatBytes, renameExt } from '../lib/format';
 import { nextPaint } from '../lib/schedule';
+import { useIncomingFiles } from '../lib/incoming';
+import { downloadUrl } from '../lib/download';
 
 const ASPECTS: { label: string; value: number | undefined }[] = [
   { label: 'Free', value: undefined },
@@ -29,9 +34,28 @@ interface Result {
   type: string;
 }
 
+/** A tiny rectangle in the shape of the ratio, so the options read at a glance. */
+function AspectShape({ value }: { value?: number }) {
+  const w = value ? (value >= 1 ? 22 : 22 * value) : 22;
+  const h = value ? (value >= 1 ? 22 / value : 22) : 16;
+  return (
+    <span className="grid h-7 place-items-center">
+      <span
+        className={`block rounded-[3px] border-2 border-current ${value ? '' : 'border-dashed'}`}
+        style={{ width: w, height: h }}
+      />
+    </span>
+  );
+}
+
 export default function Crop() {
+  const [searchParams] = useSearchParams();
   const [file, setFile] = useState<File | null>(null);
-  const [aspectIdx, setAspectIdx] = useState(0);
+  const [aspectIdx, setAspectIdx] = useState(() => {
+    // Preset from the URL, e.g. /crop?aspect=1:1 for a square profile picture.
+    const i = ASPECTS.findIndex((a) => a.label === searchParams.get('aspect'));
+    return i >= 0 ? i : 0;
+  });
   const [rect, setRect] = useState<CropRect | null>(null);
   const [format, setFormat] = useState<FormatChoice>('same');
   const [quality, setQuality] = useState(92);
@@ -54,6 +78,7 @@ export default function Crop() {
     },
     [clearResult],
   );
+  useIncomingFiles(onFiles);
 
   const run = useCallback(async () => {
     if (!file || !rect) return;
@@ -80,96 +105,135 @@ export default function Crop() {
 
   const download = () => {
     if (!result || !file) return;
-    const a = document.createElement('a');
-    a.href = result.url;
-    a.download = renameExt(file.name, EXT[result.type as TargetFormat] ?? 'png');
-    a.click();
+    downloadUrl(result.url, renameExt(file.name, EXT[result.type as TargetFormat] ?? 'png'));
   };
 
   const isPng = format === 'image/png';
 
   return (
-    <section>
-      <h1 className="mb-1 text-2xl font-extrabold tracking-tight">Crop image</h1>
-      <p className="mb-5 max-w-2xl text-[15px] text-muted">
-        Crop freely or to a fixed aspect ratio at full resolution. No watermark, nothing uploaded.
-      </p>
+    <div className="container-page">
+      <ToolHeader
+        title="Crop image"
+        description="Crop freely or to a fixed aspect ratio, at full resolution. No watermark, nothing uploaded."
+      />
 
-      {!file && <Dropzone multiple={false} onFiles={onFiles} />}
-
-      {file && (
-        <div className="grid gap-6 lg:grid-cols-[1fr_300px]">
-          <CropField file={file} aspect={ASPECTS[aspectIdx].value} onCropChange={setRect} />
-
-          <aside className="space-y-4">
-            <div>
-              <span className="mb-1 block text-sm font-medium text-fg">Aspect ratio</span>
-              <div className="flex flex-wrap gap-2">
-                {ASPECTS.map((a, i) => (
-                  <button
-                    key={a.label}
-                    type="button"
-                    onClick={() => setAspectIdx(i)}
-                    className={`btn-ghost ${i === aspectIdx ? 'border-accent text-accent' : ''}`}
-                  >
-                    {a.label}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <label className="block">
-              <span className="mb-1 block text-sm font-medium text-fg">Output format</span>
-              <Select value={format} onChange={(e) => setFormat(e.target.value as FormatChoice)}>
-                <option value="same">Keep original</option>
-                <option value="image/jpeg">JPEG</option>
-                <option value="image/png">PNG</option>
-                <option value="image/webp">WebP</option>
-                <option value="image/avif">AVIF</option>
-              </Select>
-            </label>
-
-            <Slider
-              label="Quality"
-              min={1}
-              max={100}
-              value={quality}
-              suffix="%"
-              onChange={setQuality}
-              disabled={isPng}
-            />
-
-            <button type="button" onClick={run} disabled={busy || !rect} className="btn-primary w-full">
-              {busy ? 'Working' : 'Crop image'}
-            </button>
-            {busy && <Spinner label="Processing on your device" />}
-            <button
-              type="button"
-              onClick={() => {
+      <WorkspaceGrid>
+        <div className="min-w-0">
+          {!file ? (
+            <Dropzone multiple={false} onFiles={onFiles} />
+          ) : (
+            <StageCard
+              file={file}
+              onReplace={onFiles}
+              onClear={() => {
                 clearResult();
                 setFile(null);
               }}
-              className="btn-ghost w-full"
+              disabled={busy}
+              footer={
+                result && (
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <div className="flex min-w-0 items-center gap-3">
+                      <img
+                        src={result.url}
+                        alt="Cropped result"
+                        className="checkerboard h-12 w-12 shrink-0 rounded-lg object-contain"
+                      />
+                      <p className="tabular text-[13.5px] text-muted">
+                        <span className="font-semibold text-fg">Cropped</span> &middot; {result.w}&times;{result.h}{' '}
+                        &middot; {formatBytes(result.size)}
+                      </p>
+                    </div>
+                    <button type="button" onClick={download} className="btn btn-primary hidden sm:inline-flex">
+                      <Icon name="download" className="h-4 w-4" />
+                      Download
+                    </button>
+                  </div>
+                )
+              }
             >
-              Choose another image
-            </button>
+              <CropField file={file} aspect={ASPECTS[aspectIdx].value} onCropChange={setRect} />
+              <p className="mt-3 px-1 text-[12.5px] text-muted">
+                Drag the box or its corners.
+                {rect && (
+                  <span className="tabular">
+                    {' '}
+                    Selection: <span className="font-semibold text-fg">{rect.width}&times;{rect.height}px</span>
+                  </span>
+                )}
+              </p>
+            </StageCard>
+          )}
+        </div>
 
-            {result && (
-              <div className="card space-y-2 p-3">
-                <img src={result.url} alt="Cropped result" className="w-full rounded-lg" />
-                <p className="text-xs text-muted">
-                  {result.w}×{result.h} · {formatBytes(result.size)}
-                </p>
-                <button type="button" onClick={download} className="btn-primary w-full">
+        <SettingsPanel
+          footer={
+            <div className={file ? 'hidden lg:block' : ''}>
+              <button type="button" onClick={run} disabled={busy || !rect} className="btn btn-primary btn-lg w-full">
+                {busy ? 'Cropping' : 'Crop image'}
+              </button>
+              {result && (
+                <button type="button" onClick={download} className="btn btn-secondary btn-lg mt-2 w-full">
+                  <Icon name="download" className="h-4 w-4" />
                   Download
                 </button>
-              </div>
-            )}
-          </aside>
-        </div>
+              )}
+            </div>
+          }
+        >
+          <Field label="Aspect ratio">
+            <div className="grid grid-cols-3 gap-2" role="radiogroup" aria-label="Aspect ratio">
+              {ASPECTS.map((a, i) => (
+                <button
+                  key={a.label}
+                  type="button"
+                  role="radio"
+                  aria-checked={i === aspectIdx}
+                  onClick={() => setAspectIdx(i)}
+                  className={`flex flex-col items-center gap-1 rounded-xl border py-2.5 text-[12.5px] font-semibold transition ${
+                    i === aspectIdx
+                      ? 'border-fg bg-subtle text-fg shadow-[inset_0_0_0_1px_rgb(var(--fg))]'
+                      : 'border-line text-muted hover:border-line-strong hover:text-fg'
+                  }`}
+                >
+                  <AspectShape value={a.value} />
+                  {a.label}
+                </button>
+              ))}
+            </div>
+          </Field>
+
+          <FormatPicker
+            value={format}
+            onChange={setFormat}
+            options={['same', 'image/jpeg', 'image/png', 'image/webp', 'image/avif'] as FormatChoice[]}
+          />
+
+          <Slider label="Quality" min={1} max={100} value={quality} suffix="%" onChange={setQuality} disabled={isPng} />
+        </SettingsPanel>
+      </WorkspaceGrid>
+
+      {file && (
+        <MobileActionBar busy={busy}>
+          {result ? (
+            <>
+              <button type="button" onClick={run} disabled={busy || !rect} className="btn btn-secondary h-[3.25rem] flex-1">
+                Crop again
+              </button>
+              <button type="button" onClick={download} className="btn btn-primary btn-lg flex-1">
+                <Icon name="download" className="h-4 w-4" />
+                Download
+              </button>
+            </>
+          ) : (
+            <button type="button" onClick={run} disabled={busy || !rect} className="btn btn-primary btn-lg flex-1">
+              {busy ? 'Cropping' : 'Crop image'}
+            </button>
+          )}
+        </MobileActionBar>
       )}
 
       <ToolContent slug="/crop" />
-    </section>
+    </div>
   );
 }

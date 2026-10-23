@@ -7,15 +7,15 @@ export default function ProductHuntBadge() {
       target="_blank"
       rel="noopener noreferrer"
       aria-label="iHateImages on Product Hunt"
-      className="inline-flex items-center gap-2.5 rounded-xl border border-line bg-panel px-3 py-2 transition hover:bg-hover"
+      className="inline-flex items-center gap-2.5 rounded-xl border border-line bg-surface py-1.5 pl-1.5 pr-3 transition hover:border-line-strong"
     >
       <span
-        className="grid h-8 w-8 shrink-0 place-items-center rounded-lg"
+        className="grid h-7 w-7 shrink-0 place-items-center rounded-lg"
         style={{ backgroundColor: '#da552f' }}
       >
         <svg
           viewBox="0 0 24 24"
-          className="h-4 w-4"
+          className="h-3.5 w-3.5"
           fill="none"
           stroke="#ffffff"
           strokeWidth={2.6}
@@ -27,10 +27,8 @@ export default function ProductHuntBadge() {
         </svg>
       </span>
       <span className="leading-tight">
-        <span className="block text-[10px] font-semibold uppercase tracking-wide text-muted">
-          Featured on
-        </span>
-        <span className="block text-sm font-extrabold text-fg">Product Hunt</span>
+        <span className="block text-[9.5px] font-semibold uppercase tracking-wide text-muted">Featured on</span>
+        <span className="block text-[13px] font-bold text-fg">Product Hunt</span>
       </span>
     </a>
   );

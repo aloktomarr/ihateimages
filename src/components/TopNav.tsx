@@ -1,62 +1,49 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Link, NavLink, useLocation } from 'react-router-dom';
-import { Icon, type IconName } from './icons';
+import { Icon } from './icons';
+import { LogoMark, Wordmark } from './Logo';
 import ThemeToggle from './ThemeToggle';
-import { TOOLS } from '../lib/tools';
+import { CATEGORIES, TOOLS, toolForPath, type ToolMeta } from '../lib/tools';
 import { prefetchRoute } from '../lib/routes';
+import { modKeyLabel, openPalette } from '../lib/palette';
 
-interface NavItem {
-  to: string;
-  label: string;
-  icon: IconName;
+const PAGES: [string, string][] = [
+  ['/convert', 'Convert'],
+  ['/integrations', 'Integrations'],
+  ['/blog', 'Blog'],
+];
+
+function ToolLink({ tool, onPick, compact = false }: { tool: ToolMeta; onPick?: () => void; compact?: boolean }) {
+  return (
+    <NavLink
+      to={tool.path}
+      onMouseEnter={() => prefetchRoute(tool.path)}
+      onFocus={() => prefetchRoute(tool.path)}
+      onClick={onPick}
+      className={({ isActive }) =>
+        `group flex items-start gap-3 rounded-xl p-2.5 transition ${isActive ? 'bg-subtle' : 'hover:bg-subtle'}`
+      }
+    >
+      <span className="grid h-9 w-9 shrink-0 place-items-center rounded-[10px] border border-line bg-surface text-fg transition group-hover:border-transparent group-hover:bg-ink group-hover:text-ink-fg">
+        <Icon name={tool.icon} className="h-[18px] w-[18px]" />
+      </span>
+      <span className="min-w-0 pt-px">
+        <span className="block text-[14px] font-semibold leading-tight text-fg">{tool.title}</span>
+        {!compact && <span className="mt-0.5 block text-[12.5px] leading-snug text-muted">{tool.blurb}</span>}
+      </span>
+    </NavLink>
+  );
 }
 
-// Shorter labels for the compact bar / mobile pills.
-const SHORT: Record<string, string> = {
-  '/strip-metadata': 'Metadata',
-  '/background-remover': 'Background',
-  '/favicon': 'Favicon',
-  '/passport-photo': 'Passport',
-  '/image-to-pdf': 'PDF',
-  '/rotate': 'Rotate',
-};
-
-const shortLabel = (path: string, title: string) => SHORT[path] ?? title;
-const live = TOOLS.filter((t) => t.live);
-
-// A handful of high-traffic tools sit inline; the rest live under a "More" menu so the bar
-// never overflows as tools are added. Integrations sits inline so it is directly visible.
-const PRIMARY = new Set(['/compress', '/convert', '/resize', '/background-remover']);
-
-const INTEGRATIONS_NAV: NavItem = { to: '/integrations', label: 'Integrations', icon: 'link' };
-
-const PRIMARY_NAV: NavItem[] = [
-  { to: '/', label: 'Home', icon: 'home' },
-  ...live
-    .filter((t) => PRIMARY.has(t.path))
-    .map((t) => ({ to: t.path, label: shortLabel(t.path, t.title), icon: t.icon })),
-  INTEGRATIONS_NAV,
-];
-const MORE_NAV: NavItem[] = live
-  .filter((t) => !PRIMARY.has(t.path))
-  .map((t) => ({ to: t.path, label: t.title, icon: t.icon }));
-const ALL_NAV: NavItem[] = [
-  { to: '/', label: 'Home', icon: 'home' },
-  ...live.map((t) => ({ to: t.path, label: shortLabel(t.path, t.title), icon: t.icon })),
-  INTEGRATIONS_NAV,
-];
-
-function MoreMenu({ items }: { items: NavItem[] }) {
+function ToolsMenu() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const { pathname } = useLocation();
+  const activeTool = !!toolForPath(pathname) && !pathname.startsWith('/convert');
 
-  // Close when the route changes.
-  useEffect(() => {
-    setOpen(false);
-  }, [pathname]);
+  useEffect(() => setOpen(false), [pathname]);
 
-  // Close on outside click or Escape.
   useEffect(() => {
     if (!open) return;
     const onDown = (e: MouseEvent) => {
@@ -73,8 +60,6 @@ function MoreMenu({ items }: { items: NavItem[] }) {
     };
   }, [open]);
 
-  const activeInMore = items.some((i) => i.to === pathname);
-
   return (
     <div ref={ref} className="relative">
       <button
@@ -82,106 +67,182 @@ function MoreMenu({ items }: { items: NavItem[] }) {
         onClick={() => setOpen((o) => !o)}
         aria-haspopup="true"
         aria-expanded={open}
-        className={`flex items-center gap-1.5 rounded-full px-3 py-2 text-[15px] transition ${
-          activeInMore || open
-            ? 'bg-hover font-semibold text-accent'
-            : 'font-medium text-muted hover:bg-hover hover:text-fg'
+        className={`flex h-9 items-center gap-1 rounded-full px-3.5 text-[14px] font-medium transition ${
+          open || activeTool ? 'bg-subtle text-fg' : 'text-muted hover:bg-subtle hover:text-fg'
         }`}
       >
-        More
+        Tools
         <Icon name="chevronDown" className={`h-4 w-4 transition ${open ? 'rotate-180' : ''}`} />
       </button>
 
       {open && (
-        <div className="absolute left-0 top-full z-50 mt-1 w-56 rounded-2xl border border-line bg-app p-1.5 shadow-lg">
-          {items.map((n) => (
-            <NavLink
-              key={n.to}
-              to={n.to}
-              onMouseEnter={() => prefetchRoute(n.to)}
-              onClick={() => setOpen(false)}
-              className={({ isActive }) =>
-                `flex items-center gap-3 rounded-xl px-3 py-2 text-sm transition ${
-                  isActive ? 'bg-hover font-semibold text-accent' : 'text-fg hover:bg-hover'
-                }`
-              }
+        <div className="absolute left-0 top-full z-50 mt-2 w-[780px] animate-scale-in rounded-2xl border border-line bg-surface p-3 shadow-float">
+          <div className="grid grid-cols-3 gap-2">
+            {CATEGORIES.map((cat) => (
+              <div key={cat.id}>
+                <p className="px-2.5 pb-1 pt-1.5 text-[11.5px] font-semibold uppercase tracking-[0.08em] text-faint">
+                  {cat.title}
+                </p>
+                {TOOLS.filter((t) => t.category === cat.id).map((t) => (
+                  <ToolLink key={t.slug} tool={t} onPick={() => setOpen(false)} />
+                ))}
+              </div>
+            ))}
+          </div>
+          <div className="mt-2 flex items-center justify-between gap-4 rounded-xl bg-subtle px-4 py-3 text-[13px]">
+            <span className="text-muted">
+              <span className="font-semibold text-fg">Not sure which one?</span> Drop an image anywhere and we&rsquo;ll
+              suggest a tool.
+            </span>
+            <button
+              type="button"
+              onClick={() => {
+                setOpen(false);
+                openPalette();
+              }}
+              className="flex shrink-0 items-center gap-1.5 font-semibold text-fg"
             >
-              <Icon name={n.icon} className="h-4 w-4 shrink-0" />
-              {n.label}
-            </NavLink>
-          ))}
+              Search <span className="kbd">{modKeyLabel()} K</span>
+            </button>
+          </div>
         </div>
       )}
     </div>
   );
 }
 
-export default function TopNav() {
-  return (
-    <header className="nav-blur sticky top-0 z-40 border-b border-line">
-      <div className="mx-auto w-full max-w-[1600px] px-4 sm:px-6 lg:px-8">
-        <div className="flex h-14 items-center gap-4">
-          <Link
-            to="/"
-            onMouseEnter={() => prefetchRoute('/')}
-            className="flex shrink-0 items-center gap-2"
-          >
-            <span className="grid h-8 w-8 place-items-center rounded-xl bg-accent text-white">
-              <Icon name="logo" className="h-5 w-5" />
-            </span>
-            <span className="text-lg font-extrabold tracking-tight">
-              iHate<span className="text-accent">Images</span>
-            </span>
-          </Link>
+function MobileMenu({ onClose }: { onClose: () => void }) {
+  useEffect(() => {
+    const prev = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && onClose();
+    document.addEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = prev;
+      document.removeEventListener('keydown', onKey);
+    };
+  }, [onClose]);
 
-          <nav className="ml-2 hidden flex-1 items-center gap-1 lg:flex">
-            {PRIMARY_NAV.map((n) => (
-              <NavLink
-                key={n.to}
-                to={n.to}
-                end={n.to === '/'}
-                onMouseEnter={() => prefetchRoute(n.to)}
-                onFocus={() => prefetchRoute(n.to)}
-                className={({ isActive }) =>
-                  `flex shrink-0 items-center gap-2 rounded-full px-3 py-2 text-[15px] transition ${
-                    isActive
-                      ? 'bg-hover font-semibold text-accent'
-                      : 'font-medium text-muted hover:bg-hover hover:text-fg'
-                  }`
-                }
-              >
-                <Icon name={n.icon} className="h-4 w-4 shrink-0" />
-                {n.label}
-              </NavLink>
-            ))}
-            <MoreMenu items={MORE_NAV} />
-          </nav>
-
-          <div className="ml-auto shrink-0 lg:ml-0">
-            <ThemeToggle />
+  // Portalled to <body>: the header's backdrop-filter would otherwise trap this fixed sheet.
+  return createPortal(
+    <div className="fixed inset-x-0 bottom-0 top-16 z-40 animate-fade-in overflow-y-auto bg-app lg:hidden">
+      <div className="container-page space-y-6 pb-16 pt-4">
+        <button
+          type="button"
+          onClick={() => {
+            onClose();
+            openPalette();
+          }}
+          className="flex h-12 w-full items-center gap-3 rounded-2xl border border-line bg-surface px-4 text-left text-[15px] text-muted"
+        >
+          <Icon name="search" className="h-5 w-5" />
+          Search tools and tasks
+        </button>
+        {CATEGORIES.map((cat) => (
+          <div key={cat.id}>
+            <p className="eyebrow mb-1 px-2.5">{cat.title}</p>
+            <div className="grid grid-cols-1 gap-0.5 sm:grid-cols-2">
+              {TOOLS.filter((t) => t.category === cat.id).map((t) => (
+                <ToolLink key={t.slug} tool={t} onPick={onClose} />
+              ))}
+            </div>
           </div>
-        </div>
-
-        {/* Compact / mobile: horizontally scrollable pill nav (all tools) */}
-        <nav className="no-scrollbar -mx-4 flex gap-1 overflow-x-auto px-4 pb-2 lg:hidden">
-          {ALL_NAV.map((n) => (
+        ))}
+        <div className="border-t border-line pt-4">
+          {[['/', 'Home'], ...PAGES, ['/about', 'About'], ['/privacy', 'Privacy']].map(([to, label]) => (
             <NavLink
-              key={n.to}
-              to={n.to}
-              end={n.to === '/'}
-              onTouchStart={() => prefetchRoute(n.to)}
+              key={to}
+              to={to}
+              end={to === '/'}
+              onClick={onClose}
               className={({ isActive }) =>
-                `flex shrink-0 items-center gap-2 rounded-full px-3 py-1.5 text-sm transition ${
-                  isActive ? 'bg-accent font-semibold text-white' : 'text-fg hover:bg-hover'
+                `flex items-center justify-between rounded-xl px-2.5 py-3 text-[16px] font-semibold ${
+                  isActive ? 'text-fg' : 'text-muted'
                 }`
               }
             >
-              <Icon name={n.icon} className="h-4 w-4" />
-              {n.label}
+              {label}
+              <Icon name="chevronRight" className="h-4 w-4 text-faint" />
+            </NavLink>
+          ))}
+        </div>
+      </div>
+    </div>,
+    document.body,
+  );
+}
+
+export default function TopNav() {
+  const [scrolled, setScrolled] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const { pathname } = useLocation();
+  const closeMenu = useCallback(() => setMenuOpen(false), []);
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 4);
+    onScroll();
+    window.addEventListener('scroll', onScroll, { passive: true });
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
+  useEffect(() => setMenuOpen(false), [pathname]);
+
+  return (
+    <header
+      className={`nav-blur sticky top-0 z-50 border-b transition-colors ${
+        scrolled || menuOpen ? 'border-line' : 'border-transparent'
+      }`}
+    >
+      <div className="container-page flex h-16 items-center gap-2">
+        <Link to="/" className="mr-3 flex shrink-0 items-center gap-2.5" aria-label="iHateImages home">
+          <LogoMark className="h-8 w-8" />
+          <Wordmark className="text-[17px]" />
+        </Link>
+
+        <nav className="hidden items-center gap-0.5 lg:flex" aria-label="Main">
+          <ToolsMenu />
+          {PAGES.map(([to, label]) => (
+            <NavLink
+              key={to}
+              to={to}
+              onMouseEnter={() => prefetchRoute(to)}
+              className={({ isActive }) =>
+                `flex h-9 items-center rounded-full px-3.5 text-[14px] font-medium transition ${
+                  isActive ? 'bg-subtle text-fg' : 'text-muted hover:bg-subtle hover:text-fg'
+                }`
+              }
+            >
+              {label}
             </NavLink>
           ))}
         </nav>
+
+        <div className="ml-auto flex items-center gap-1">
+          <button
+            type="button"
+            onClick={openPalette}
+            className="mr-1 hidden h-9 w-60 items-center gap-2.5 rounded-full border border-line bg-surface pl-3.5 pr-1.5 text-[13.5px] text-faint shadow-soft transition hover:border-line-strong hover:text-muted md:flex"
+          >
+            <Icon name="search" className="h-4 w-4" />
+            <span className="flex-1 text-left">Search tools&hellip;</span>
+            <span className="kbd">{modKeyLabel()} K</span>
+          </button>
+          <button type="button" onClick={openPalette} className="icon-btn md:hidden" aria-label="Search">
+            <Icon name="search" className="h-[18px] w-[18px]" />
+          </button>
+          <ThemeToggle />
+          <button
+            type="button"
+            onClick={() => setMenuOpen((o) => !o)}
+            className="icon-btn lg:hidden"
+            aria-label={menuOpen ? 'Close menu' : 'Open menu'}
+            aria-expanded={menuOpen}
+          >
+            <Icon name={menuOpen ? 'close' : 'menu'} className="h-5 w-5" />
+          </button>
+        </div>
       </div>
+      {menuOpen && <MobileMenu onClose={closeMenu} />}
     </header>
   );
 }

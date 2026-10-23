@@ -1,9 +1,11 @@
 import type { ReactElement } from 'react';
 import { Link, Navigate, useParams } from 'react-router-dom';
 import { BLOG_BY_SLUG, formatDate } from '../lib/blog';
+import { Icon } from '../components/icons';
 
+// Headings, lists and links are styled by the surrounding .prose-ui block.
 function H2({ children }: { children: string }) {
-  return <h2 className="text-xl font-bold text-fg">{children}</h2>;
+  return <h2>{children}</h2>;
 }
 
 // Article bodies, keyed by slug. Metadata (title, date, description) lives in blog.data.json.
@@ -20,21 +22,21 @@ const ARTICLES: Record<string, () => ReactElement> = {
 
       <H2>Why do everything client-side?</H2>
       <p>There are four big wins to processing images on your own device:</p>
-      <ul className="list-disc space-y-1 pl-5">
+      <ul>
         <li>
-          <span className="text-fg">Privacy.</span> Your files never leave your device, so there is
+          <span className="font-semibold text-fg">Privacy.</span> Your files never leave your device, so there is
           no server that could store, leak or train on them.
         </li>
         <li>
-          <span className="text-fg">Speed.</span> There is no upload and download round trip. Work
+          <span className="font-semibold text-fg">Speed.</span> There is no upload and download round trip. Work
           happens on your local CPU and GPU and finishes as fast as your device can go.
         </li>
         <li>
-          <span className="text-fg">Cost.</span> With no servers to process images, the tools can
+          <span className="font-semibold text-fg">Cost.</span> With no servers to process images, the tools can
           stay free with no watermark and no sign-up.
         </li>
         <li>
-          <span className="text-fg">Offline.</span> Once the app has loaded, it keeps working with no
+          <span className="font-semibold text-fg">Offline.</span> Once the app has loaded, it keeps working with no
           internet connection at all.
         </li>
       </ul>
@@ -43,17 +45,17 @@ const ARTICLES: Record<string, () => ReactElement> = {
       <p>
         Modern browsers ship a surprisingly capable image pipeline. We lean on three technologies:
       </p>
-      <ul className="list-disc space-y-1 pl-5">
+      <ul>
         <li>
-          <span className="text-fg">Canvas and OffscreenCanvas</span> decode, draw, resize and
+          <span className="font-semibold text-fg">Canvas and OffscreenCanvas</span> decode, draw, resize and
           re-encode JPEG, PNG and WebP natively.
         </li>
         <li>
-          <span className="text-fg">Web Workers</span> run the heavy work off the main thread, so the
+          <span className="font-semibold text-fg">Web Workers</span> run the heavy work off the main thread, so the
           interface stays smooth even while a large image is being encoded.
         </li>
         <li>
-          <span className="text-fg">WebAssembly</span> handles the formats browsers cannot encode or
+          <span className="font-semibold text-fg">WebAssembly</span> handles the formats browsers cannot encode or
           decode on their own.
         </li>
       </ul>
@@ -63,27 +65,27 @@ const ARTICLES: Record<string, () => ReactElement> = {
         Not every format is built into the browser, so a few tools bring their own codecs compiled to
         WebAssembly:
       </p>
-      <ul className="list-disc space-y-1 pl-5">
+      <ul>
         <li>
-          <span className="text-fg">HEIC</span> from an iPhone cannot be decoded natively, so we use
+          <span className="font-semibold text-fg">HEIC</span> from an iPhone cannot be decoded natively, so we use
           a WebAssembly build of libheif to convert it first. Try{' '}
-          <Link to="/convert/heic-to-jpg" className="text-accent hover:underline">
+          <Link to="/convert/heic-to-jpg">
             HEIC to JPG
           </Link>
           .
         </li>
         <li>
-          <span className="text-fg">AVIF</span> uses the Squoosh encoder compiled to WebAssembly for
+          <span className="font-semibold text-fg">AVIF</span> uses the Squoosh encoder compiled to WebAssembly for
           the smallest files. It powers the{' '}
-          <Link to="/compress" className="text-accent hover:underline">
+          <Link to="/compress">
             image compressor
           </Link>
           .
         </li>
         <li>
-          <span className="text-fg">Background removal</span> runs an ONNX segmentation model on your
+          <span className="font-semibold text-fg">Background removal</span> runs an ONNX segmentation model on your
           device. The model downloads once, then the{' '}
-          <Link to="/background-remover" className="text-accent hover:underline">
+          <Link to="/background-remover">
             background remover
           </Link>{' '}
           works offline. Your image is never uploaded.
@@ -95,17 +97,17 @@ const ARTICLES: Record<string, () => ReactElement> = {
         Shipping codecs to the browser could easily make the app heavy, so performance is a
         first-class concern:
       </p>
-      <ul className="list-disc space-y-1 pl-5">
+      <ul>
         <li>
-          <span className="text-fg">Route-based code splitting</span> means each tool is a separate
+          <span className="font-semibold text-fg">Route-based code splitting</span> means each tool is a separate
           chunk and the initial download stays tiny.
         </li>
         <li>
-          <span className="text-fg">Lazy codecs</span> load the multi-megabyte HEIC and AVIF code
+          <span className="font-semibold text-fg">Lazy codecs</span> load the multi-megabyte HEIC and AVIF code
           only when you actually use a tool that needs it.
         </li>
         <li>
-          <span className="text-fg">A Progressive Web App shell</span> is cached so repeat visits are
+          <span className="font-semibold text-fg">A Progressive Web App shell</span> is cached so repeat visits are
           instant and the whole app works offline.
         </li>
       </ul>
@@ -136,27 +138,36 @@ export default function BlogPost() {
   if (!post || !Body) return <Navigate to="/blog" replace />;
 
   return (
-    <div className="max-w-3xl">
-      <p className="mb-4">
-        <Link to="/blog" className="text-sm text-muted transition hover:text-fg">
-          &larr; Back to blog
-        </Link>
-      </p>
+    <div className="container-page">
+      <article className="mx-auto max-w-3xl">
+        <header className="pb-10 pt-12 sm:pb-12 sm:pt-16">
+          <Link
+            to="/blog"
+            className="inline-flex items-center gap-1.5 text-[13.5px] font-medium text-muted transition hover:text-fg"
+          >
+            <Icon name="arrowLeft" className="h-4 w-4" />
+            All posts
+          </Link>
+          <p className="tabular mt-10 text-[13.5px] text-muted">
+            {formatDate(post.date)} &middot; {post.readingMinutes} min read
+          </p>
+          <h1 className="display text-display-md mt-4">{post.title}</h1>
+          <p className="lead mt-6">{post.description}</p>
+        </header>
 
-      <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">{post.title}</h1>
-      <p className="mt-2 text-xs text-muted">
-        {formatDate(post.date)} &middot; {post.readingMinutes} min read
-      </p>
+        <div className="prose-ui border-t border-line pt-6">
+          <Body />
+        </div>
 
-      <div className="mt-6 space-y-5 text-[15px] leading-relaxed text-muted">
-        <Body />
-      </div>
-
-      <div className="mt-10">
-        <Link to="/" className="btn-primary">
-          Try the tools
-        </Link>
-      </div>
+        <div className="mt-16 flex flex-col items-start gap-5 rounded-[1.5rem] bg-band p-8 text-band-fg sm:flex-row sm:items-center sm:justify-between">
+          <p className="display text-[1.75rem] leading-tight">
+            See it for <span className="serif-accent text-pop">yourself.</span>
+          </p>
+          <Link to="/" className="btn btn-pop btn-lg">
+            Try the tools <Icon name="arrowRight" className="h-4 w-4" />
+          </Link>
+        </div>
+      </article>
     </div>
   );
 }
