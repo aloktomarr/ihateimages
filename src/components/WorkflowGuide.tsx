@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Icon, type IconName } from './icons';
 
 // One clear, honest guide to every way to send images into the tools, shared by the home page and
@@ -25,7 +26,7 @@ const GUIDE: { icon: IconName; title: string; steps: string[] }[] = [
     ],
   },
   {
-    icon: 'upload',
+    icon: 'monitor',
     title: 'Desktop (Chrome or Edge)',
     steps: [
       'Open ihateimages.com and click the install icon in the address bar to install the app.',
@@ -53,20 +54,71 @@ const GUIDE: { icon: IconName; title: string; steps: string[] }[] = [
   },
 ];
 
-export default function WorkflowGuide() {
+/** Every option, either as tabs (compact, for the home page) or as a grid of cards. */
+export default function WorkflowGuide({ layout = 'grid' }: { layout?: 'grid' | 'tabs' }) {
+  const [tab, setTab] = useState(0);
+
+  if (layout === 'tabs') {
+    const g = GUIDE[tab];
+    return (
+      <div className="card overflow-hidden">
+        <div className="no-scrollbar flex gap-1 overflow-x-auto border-b border-line p-2" role="tablist">
+          {GUIDE.map((item, i) => (
+            <button
+              key={item.title}
+              type="button"
+              role="tab"
+              aria-selected={i === tab}
+              onClick={() => setTab(i)}
+              className={`flex h-10 shrink-0 items-center gap-2 rounded-full px-4 text-[13.5px] font-semibold transition ${
+                i === tab ? 'bg-ink text-ink-fg' : 'text-muted hover:bg-subtle hover:text-fg'
+              }`}
+            >
+              <Icon name={item.icon} className="h-4 w-4" />
+              {item.title}
+            </button>
+          ))}
+        </div>
+        <div role="tabpanel" className="grid gap-8 p-6 sm:p-8 md:grid-cols-[minmax(0,0.7fr)_minmax(0,1.6fr)]">
+          <div>
+            <span className="grid h-12 w-12 place-items-center rounded-2xl bg-pop text-pop-fg">
+              <Icon name={g.icon} className="h-6 w-6" />
+            </span>
+            <h3 className="display mt-5 text-[1.75rem]">{g.title}</h3>
+          </div>
+          <ol className="space-y-4">
+            {g.steps.map((s, i) => (
+              <li key={s} className="flex gap-4">
+                <span className="tabular grid h-7 w-7 shrink-0 place-items-center rounded-full border border-line text-[12.5px] font-bold text-fg">
+                  {i + 1}
+                </span>
+                <span className="pt-0.5 text-[15px] leading-relaxed text-muted">{s}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      </div>
+    );
+  }
+
   return (
-    <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
       {GUIDE.map((g) => (
-        <div key={g.title} className="card">
+        <div key={g.title} className="card p-6">
           <div className="flex items-center gap-3">
-            <span className="grid h-9 w-9 shrink-0 place-items-center rounded-full border border-line text-accent">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-subtle text-fg">
               <Icon name={g.icon} className="h-5 w-5" />
             </span>
-            <h3 className="font-bold">{g.title}</h3>
+            <h3 className="text-[17px] font-semibold tracking-[-0.02em]">{g.title}</h3>
           </div>
-          <ol className="mt-3 list-decimal space-y-1.5 pl-5 text-sm text-muted marker:text-muted">
-            {g.steps.map((s) => (
-              <li key={s}>{s}</li>
+          <ol className="mt-5 space-y-3">
+            {g.steps.map((s, i) => (
+              <li key={s} className="flex gap-3 text-[14px] leading-relaxed text-muted">
+                <span className="tabular mt-0.5 grid h-5 w-5 shrink-0 place-items-center rounded-full bg-subtle text-[11px] font-bold text-fg">
+                  {i + 1}
+                </span>
+                {s}
+              </li>
             ))}
           </ol>
         </div>

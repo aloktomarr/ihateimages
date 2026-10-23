@@ -1,6 +1,5 @@
-import { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { pushIncomingImage } from '../lib/incoming';
+import { useEffect, useRef } from 'react';
+import { useSendFiles } from '../lib/incoming';
 
 const SHARED_CACHE = 'shared-image';
 const SHARED_KEY = '/__shared-image';
@@ -36,18 +35,19 @@ async function fetchSrc(src: string): Promise<File | null> {
   }
 }
 
-// Wires up every way an image can enter the app from outside a manual upload, then hands the
-// file to the incoming queue and routes to the compressor. Rendered once at the app root.
+// Wires up every way an image can enter the app from outside the page, then hands the file to
+// the compressor. Rendered once at the app root.
 export default function IncomingImageBridge() {
-  const navigate = useNavigate();
+  const send = useSendFiles();
+  const sendRef = useRef(send);
+  sendRef.current = send;
 
   useEffect(() => {
     let active = true;
 
     const deliver = (file: File) => {
       if (!active) return;
-      pushIncomingImage(file);
-      if (window.location.pathname !== '/compress') navigate('/compress');
+      sendRef.current([file], '/compress');
     };
 
     // 1. Desktop "Open with" via the File Handling API.
@@ -93,7 +93,7 @@ export default function IncomingImageBridge() {
       active = false;
       window.removeEventListener('message', onMessage);
     };
-  }, [navigate]);
+  }, []);
 
   return null;
 }

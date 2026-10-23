@@ -1,6 +1,7 @@
 import { useCallback, useState } from 'react';
 import ImageToolShell from '../components/ImageToolShell';
-import Select from '../components/Select';
+import { Field, FormatPicker, Toggle } from '../components/controls';
+import { Icon } from '../components/icons';
 import { normalizeType, type ProcessOptions, type TargetFormat } from '../lib/imageTypes';
 
 type FormatChoice = 'same' | TargetFormat;
@@ -27,46 +28,54 @@ export default function Rotate() {
 
   const controls = (
     <>
-      <div>
-        <span className="mb-1 block text-sm font-medium text-fg">Rotation</span>
-        <div className="flex gap-2">
+      <Field label="Rotation">
+        <div className="flex items-center gap-2">
           <button
             type="button"
-            onClick={() => setRotate((r) => (((r + 270) % 360) as Rot))}
-            className="btn-ghost flex-1"
+            onClick={() => setRotate((r) => ((r + 270) % 360) as Rot)}
+            className="btn btn-secondary h-11 flex-1"
+            aria-label="Rotate left 90 degrees"
           >
-            Rotate left
+            <Icon name="rotateLeft" className="h-4 w-4" />
+            Left
           </button>
+          <span
+            className="grid h-11 w-16 shrink-0 place-items-center rounded-xl bg-subtle"
+            aria-live="polite"
+            aria-label={`Current rotation ${rotate} degrees`}
+          >
+            <span className="flex flex-col items-center">
+              <span
+                className="block h-4 w-3 rounded-[3px] border-2 border-fg transition-transform duration-300"
+                style={{ transform: `rotate(${rotate}deg) scale(${flipH ? -1 : 1}, ${flipV ? -1 : 1})` }}
+              >
+                <span className="block h-1 w-full bg-fg" />
+              </span>
+              <span className="tabular mt-0.5 text-[11px] font-bold text-fg">{rotate}&deg;</span>
+            </span>
+          </span>
           <button
             type="button"
-            onClick={() => setRotate((r) => (((r + 90) % 360) as Rot))}
-            className="btn-ghost flex-1"
+            onClick={() => setRotate((r) => ((r + 90) % 360) as Rot)}
+            className="btn btn-secondary h-11 flex-1"
+            aria-label="Rotate right 90 degrees"
           >
-            Rotate right
+            Right
+            <Icon name="rotate" className="h-4 w-4" />
           </button>
         </div>
-        <p className="mt-1 text-xs text-muted">Current rotation: {rotate}&deg;</p>
+      </Field>
+
+      <div className="space-y-4">
+        <Toggle label="Flip horizontal" description="Mirror left to right." checked={flipH} onChange={setFlipH} />
+        <Toggle label="Flip vertical" description="Mirror top to bottom." checked={flipV} onChange={setFlipV} />
       </div>
 
-      <label className="flex items-center gap-2 text-sm text-fg">
-        <input type="checkbox" checked={flipH} onChange={(e) => setFlipH(e.target.checked)} />
-        Flip horizontal
-      </label>
-      <label className="flex items-center gap-2 text-sm text-fg">
-        <input type="checkbox" checked={flipV} onChange={(e) => setFlipV(e.target.checked)} />
-        Flip vertical
-      </label>
-
-      <label className="block">
-        <span className="mb-1 block text-sm font-medium text-fg">Output format</span>
-        <Select value={format} onChange={(e) => setFormat(e.target.value as FormatChoice)}>
-          <option value="same">Keep original</option>
-          <option value="image/jpeg">JPEG</option>
-          <option value="image/png">PNG</option>
-          <option value="image/webp">WebP</option>
-          <option value="image/avif">AVIF</option>
-        </Select>
-      </label>
+      <FormatPicker
+        value={format}
+        onChange={setFormat}
+        options={['same', 'image/jpeg', 'image/png', 'image/webp', 'image/avif'] as FormatChoice[]}
+      />
     </>
   );
 

@@ -1,12 +1,22 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import Dropzone from '../components/Dropzone';
-import Spinner from '../components/Spinner';
 import ToolContent from '../components/ToolContent';
+import ToolHeader from '../components/ToolHeader';
+import CompareSlider from '../components/CompareSlider';
+import Thumb from '../components/Thumb';
+import { Field, Segmented } from '../components/controls';
+import { Icon } from '../components/icons';
+import { BusyOverlay, MobileActionBar, SettingsPanel, StageCard, WorkspaceGrid } from '../components/Workspace';
 import { formatBytes, renameExt } from '../lib/format';
 import { nextPaint } from '../lib/schedule';
+import { useIncomingFiles } from '../lib/incoming';
+import { downloadBlob } from '../lib/download';
+import { formatLabel } from '../lib/suggest';
 
 type Status = 'idle' | 'working' | 'done' | 'error';
 type BgMode = 'transparent' | 'color';
+
+const SWATCHES = ['#ffffff', '#f4f5f7', '#0e0f11', '#d4fa4c', '#2563eb', '#ef4444'];
 
 // The AI cutout runs fully on-device. The model files download once from the CDN and are then
 // cached by the browser/service worker, so repeat runs work offline. The image is never uploaded.
@@ -48,6 +58,7 @@ export default function BackgroundRemover() {
     },
     [cleanup],
   );
+  useIncomingFiles(onFiles);
 
   // Draw the transparent cut-out over a solid colour when the user wants a filled background.
   const composite = useCallback(async (src: Blob, mode: BgMode, color: string): Promise<Blob> => {
@@ -112,108 +123,163 @@ export default function BackgroundRemover() {
 
   const download = () => {
     if (!outBlob || !file) return;
-    const href = URL.createObjectURL(outBlob);
-    const a = document.createElement('a');
-    a.href = href;
-    a.download = renameExt(file.name, 'png');
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(href), 1000);
+    downloadBlob(outBlob, renameExt(file.name, 'png'));
   };
 
+  const working = status === 'working';
+  const actionLabel = working ? progress || 'Working' : status === 'done' ? 'Run again' : 'Remove background';
+
   return (
-    <section>
-      <h1 className="mb-1 text-2xl font-extrabold tracking-tight">Remove background</h1>
-      <p className="mb-5 max-w-2xl text-[15px] text-muted">
-        Erase the background from any photo with on-device AI. The model downloads once, then runs
-        100% locally. Your image never leaves your device.
-      </p>
+    <div className="container-page">
+      <ToolHeader
+        title="Remove background"
+        description="Erase the background from any photo with on-device AI. The model downloads once, then runs 100% locally. Your image never leaves your device."
+      />
 
-      <Dropzone multiple={false} onFiles={onFiles} />
-
-      {file && (
-        <div className="mt-6 grid gap-6 lg:grid-cols-[1fr_320px]">
-          <div className="grid gap-4 sm:grid-cols-2">
-            <figure className="card p-3">
-              <figcaption className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
-                Original
-              </figcaption>
-              {origUrl && (
-                <img src={origUrl} alt="Original" className="max-h-[60vh] w-full rounded-lg object-contain" />
-              )}
-            </figure>
-            <figure className="card p-3">
-              <figcaption className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted">
-                Result
-              </figcaption>
-              {resultUrl ? (
-                <img
-                  src={resultUrl}
-                  alt="Background removed"
-                  className="checkerboard max-h-[60vh] w-full rounded-lg object-contain"
+      <WorkspaceGrid>
+        <div className="min-w-0">
+          {!file ? (
+            <Dropzone multiple={false} onFiles={onFiles} />
+          ) : (
+            <StageCard
+              file={file}
+              onReplace={onFiles}
+              onClear={() => {
+                cleanup();
+                setFile(null);
+                setResultUrl(null);
+                setCutout(null);
+                setOutBlob(null);
+                setStatus('idle');
+              }}
+              disabled={working}
+              footer={
+                outBlob &&
+                status === 'done' && (
+                  <div className="flex flex-wrap items-center justify-between gap-3">
+                    <p className="tabular text-[13.5px] text-muted">
+                      <span className="font-semibold text-fg">Cutout ready</span> &middot; PNG &middot;{' '}
+                      {formatBytes(outBlob.size)}
+                    </p>
+                    <button type="button" onClick={download} className="btn btn-primary hidden sm:inline-flex">
+                      <Icon name="download" className="h-4 w-4" />
+                      Download PNG
+                    </button>
+                  </div>
+                )
+              }
+            >
+              {resultUrl && origUrl ? (
+                <CompareSlider
+                  before={origUrl}
+                  after={resultUrl}
+                  beforeLabel="Original"
+                  afterLabel="Cutout"
+                  checker={bgMode === 'transparent'}
                 />
               ) : (
-                <div className="grid h-40 place-items-center rounded-lg border border-dashed border-line text-sm text-muted">
-                  {status === 'working' ? <Spinner label={progress || 'Working'} /> : 'No result yet'}
+                <div className="relative overflow-hidden rounded-2xl bg-subtle" style={{ height: 'min(56vh, 480px)' }}>
+                  <Thumb src={origUrl ?? undefined} alt="Original" label={formatLabel(file)} fit="contain" className="h-full w-full" />
+                  {working && <BusyOverlay label={progress || 'Working'} />}
                 </div>
               )}
-            </figure>
-          </div>
-
-          <aside className="space-y-4">
-            <div>
-              <span className="text-sm font-semibold text-fg">Background</span>
-              <div className="mt-2 flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => setBgMode('transparent')}
-                  className={`btn-ghost flex-1 ${bgMode === 'transparent' ? 'border-accent text-accent' : ''}`}
-                >
-                  Transparent
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setBgMode('color')}
-                  className={`btn-ghost flex-1 ${bgMode === 'color' ? 'border-accent text-accent' : ''}`}
-                >
-                  Solid colour
-                </button>
-              </div>
-            </div>
-
-            {bgMode === 'color' && (
-              <label className="flex items-center justify-between text-sm text-fg">
-                Pick a colour
-                <input
-                  type="color"
-                  value={bgColor}
-                  onChange={(e) => setBgColor(e.target.value)}
-                  className="h-9 w-14 cursor-pointer rounded-lg border border-line bg-transparent"
-                />
-              </label>
-            )}
-
-            <button type="button" onClick={run} disabled={status === 'working'} className="btn-primary w-full">
-              {status === 'working' ? 'Working' : status === 'done' ? 'Run again' : 'Remove background'}
-            </button>
-
-            {status === 'working' && <Spinner label={progress || 'Processing on your device'} />}
-            {error && <p className="text-sm text-red-500">{error}</p>}
-
-            {outBlob && status === 'done' && (
-              <button type="button" onClick={download} className="btn-ghost w-full">
-                Download PNG ({formatBytes(outBlob.size)})
-              </button>
-            )}
-
-            <p className="text-xs text-muted">
-              First run downloads a one-time AI model, then it works offline. The image itself is
-              never uploaded.
-            </p>
-          </aside>
+              {error && (
+                <p className="mt-3 flex items-start gap-2 rounded-xl bg-danger/10 px-3 py-2.5 text-[13px] font-medium text-danger">
+                  <Icon name="alert" className="mt-px h-4 w-4 shrink-0" />
+                  {error}
+                </p>
+              )}
+            </StageCard>
+          )}
         </div>
+
+        <SettingsPanel
+          footer={
+            <div className={file ? 'hidden lg:block' : ''}>
+              <button type="button" onClick={run} disabled={working || !file} className="btn btn-primary btn-lg w-full">
+                {status === 'done' && <Icon name="refresh" className="h-4 w-4" />}
+                {status !== 'done' && !working && <Icon name="sparkles" className="h-4 w-4" />}
+                {actionLabel}
+              </button>
+              {outBlob && status === 'done' && (
+                <button type="button" onClick={download} className="btn btn-secondary btn-lg mt-2 w-full">
+                  <Icon name="download" className="h-4 w-4" />
+                  Download PNG
+                </button>
+              )}
+            </div>
+          }
+        >
+          <Segmented
+            label="Background"
+            value={bgMode}
+            onChange={setBgMode}
+            options={[
+              { value: 'transparent', label: 'Transparent' },
+              { value: 'color', label: 'Solid colour' },
+            ]}
+          />
+
+          {bgMode === 'color' && (
+            <Field label="Colour">
+              <div className="flex flex-wrap items-center gap-2">
+                {SWATCHES.map((c) => (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() => setBgColor(c)}
+                    aria-label={`Use ${c}`}
+                    aria-pressed={bgColor === c}
+                    className={`h-9 w-9 rounded-full border border-line transition ${
+                      bgColor === c ? 'ring-2 ring-fg ring-offset-2 ring-offset-surface' : 'hover:scale-105'
+                    }`}
+                    style={{ background: c }}
+                  />
+                ))}
+                <label className="relative h-9 w-9 cursor-pointer overflow-hidden rounded-full border border-line" title="Custom colour">
+                  <span className="sr-only">Custom colour</span>
+                  <input
+                    type="color"
+                    value={bgColor}
+                    onChange={(e) => setBgColor(e.target.value)}
+                    className="absolute -inset-2 h-[calc(100%+1rem)] w-[calc(100%+1rem)] cursor-pointer"
+                  />
+                </label>
+              </div>
+            </Field>
+          )}
+
+          <p className="hint flex gap-2 rounded-xl bg-subtle px-3 py-2.5">
+            <Icon name="sparkles" className="mt-0.5 h-4 w-4 shrink-0 text-fg" />
+            <span>
+              The first run downloads a one-time AI model (it is cached after that, and then works offline). Your
+              image is never uploaded.
+            </span>
+          </p>
+        </SettingsPanel>
+      </WorkspaceGrid>
+
+      {file && (
+        <MobileActionBar busy={working}>
+          {outBlob && status === 'done' ? (
+            <>
+              <button type="button" onClick={run} className="btn btn-secondary h-[3.25rem] w-[3.25rem] px-0" aria-label="Run again">
+                <Icon name="refresh" className="h-5 w-5" />
+              </button>
+              <button type="button" onClick={download} className="btn btn-primary btn-lg flex-1">
+                <Icon name="download" className="h-4 w-4" />
+                Download PNG
+              </button>
+            </>
+          ) : (
+            <button type="button" onClick={run} disabled={working} className="btn btn-primary btn-lg flex-1">
+              {actionLabel}
+            </button>
+          )}
+        </MobileActionBar>
       )}
 
       <ToolContent slug="/background-remover" />
-    </section>
+    </div>
   );
 }

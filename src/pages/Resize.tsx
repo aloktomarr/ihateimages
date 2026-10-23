@@ -1,7 +1,7 @@
 import { useCallback, useState } from 'react';
 import ImageToolShell from '../components/ImageToolShell';
-import Select from '../components/Select';
 import Slider from '../components/Slider';
+import { Field, FormatPicker, Segmented, Toggle } from '../components/controls';
 import { normalizeType, type ProcessOptions, type ResizeSpec, type TargetFormat } from '../lib/imageTypes';
 
 type Mode = 'longEdge' | 'percent' | 'exact';
@@ -32,64 +32,79 @@ export default function Resize() {
 
   const controls = (
     <>
-      <label className="block">
-        <span className="mb-1 block text-sm font-medium text-fg">Resize mode</span>
-        <Select value={mode} onChange={(e) => setMode(e.target.value as Mode)}>
-          <option value="longEdge">Fit long edge</option>
-          <option value="percent">Percentage</option>
-          <option value="exact">Exact size</option>
-        </Select>
-      </label>
+      <Segmented
+        label="Resize by"
+        value={mode}
+        onChange={setMode}
+        options={[
+          { value: 'longEdge', label: 'Long edge' },
+          { value: 'percent', label: 'Percent' },
+          { value: 'exact', label: 'Exact' },
+        ]}
+      />
 
       {mode === 'longEdge' && (
-        <Slider label="Long edge" min={100} max={6000} step={50} value={longEdge} suffix=" px" onChange={setLongEdge} />
+        <Slider
+          label="Long edge"
+          min={100}
+          max={6000}
+          step={50}
+          value={longEdge}
+          suffix=" px"
+          onChange={setLongEdge}
+          hint="The longer side is set to this; the other follows."
+        />
       )}
       {mode === 'percent' && (
         <Slider label="Scale" min={5} max={200} value={percent} suffix="%" onChange={setPercent} />
       )}
       {mode === 'exact' && (
-        <div className="space-y-2">
-          <label className="block">
-            <span className="text-sm text-fg">Width (px)</span>
-            <input
-              type="number"
-              className="field mt-1"
-              value={width}
-              min={1}
-              onChange={(e) => setWidth(Number(e.target.value))}
-            />
-          </label>
-          <label className="block">
-            <span className="text-sm text-fg">Height (px)</span>
-            <input
-              type="number"
-              className="field mt-1"
-              value={height}
-              min={1}
-              onChange={(e) => setHeight(Number(e.target.value))}
-            />
-          </label>
-          <label className="flex items-center gap-2 text-sm text-fg">
-            <input
-              type="checkbox"
-              checked={keepAspect}
-              onChange={(e) => setKeepAspect(e.target.checked)}
-            />
-            Keep aspect ratio
-          </label>
-        </div>
+        <>
+          <Field label="Size in pixels">
+            <div className="flex items-center gap-2">
+              <label className="relative flex-1">
+                <span className="sr-only">Width in pixels</span>
+                <input
+                  type="number"
+                  className="field tabular pl-9"
+                  value={width}
+                  min={1}
+                  onChange={(e) => setWidth(Number(e.target.value))}
+                />
+                <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[12px] font-bold text-faint">
+                  W
+                </span>
+              </label>
+              <span className="text-muted">&times;</span>
+              <label className="relative flex-1">
+                <span className="sr-only">Height in pixels</span>
+                <input
+                  type="number"
+                  className="field tabular pl-9"
+                  value={height}
+                  min={1}
+                  onChange={(e) => setHeight(Number(e.target.value))}
+                />
+                <span className="pointer-events-none absolute left-3.5 top-1/2 -translate-y-1/2 text-[12px] font-bold text-faint">
+                  H
+                </span>
+              </label>
+            </div>
+          </Field>
+          <Toggle
+            label="Keep aspect ratio"
+            description="Fit inside the box without stretching."
+            checked={keepAspect}
+            onChange={setKeepAspect}
+          />
+        </>
       )}
 
-      <label className="block">
-        <span className="mb-1 block text-sm font-medium text-fg">Output format</span>
-        <Select value={format} onChange={(e) => setFormat(e.target.value as FormatChoice)}>
-          <option value="same">Keep original</option>
-          <option value="image/jpeg">JPEG</option>
-          <option value="image/png">PNG</option>
-          <option value="image/webp">WebP</option>
-          <option value="image/avif">AVIF</option>
-        </Select>
-      </label>
+      <FormatPicker
+        value={format}
+        onChange={setFormat}
+        options={['same', 'image/jpeg', 'image/png', 'image/webp', 'image/avif'] as FormatChoice[]}
+      />
       <Slider
         label="Quality"
         min={1}
@@ -105,7 +120,7 @@ export default function Resize() {
   return (
     <ImageToolShell
       title="Resize images"
-      description="Scale by long edge, percentage or exact dimensions. Batch, no watermark, no upload."
+      description="Scale by long edge, percentage or exact pixel dimensions. Batch resize with no watermark and no upload."
       actionLabel="Resize"
       buildOptions={buildOptions}
       controls={controls}

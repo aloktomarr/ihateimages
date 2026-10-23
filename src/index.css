@@ -2,188 +2,413 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Light theme (default), X (Twitter) light palette */
+/*
+  Design tokens. Each colour is "R G B" channels so Tailwind can apply opacity (see
+  tailwind.config.js). Light is a cool paper with ink type; dark is near-black. "pop" is the
+  single signature accent (an acid lime), used sparingly for highlights and wins. "on" is the
+  colour of anything switched on (sliders, toggles, progress): ink in light mode, lime in dark.
+*/
 :root {
-  --bg: #ffffff;
-  --panel: #ffffff;
-  --text: #0f1419;
-  --muted: #536471;
-  --border: #eff3f4;
-  --hover: #f7f9f9;
-  --accent: #1d9bf0;
-  --accent-hover: #1a8cd8;
-  --btn: #0f1419;
-  --btn-text: #ffffff;
-  --btn-hover: #272c30;
+  --bg: 244 245 247;
+  --surface: 255 255 255;
+  --subtle: 236 238 242;
+  --line: 225 228 234;
+  --line-strong: 205 209 217;
+  --fg: 14 15 17;
+  --muted: 92 97 107;
+  --faint: 136 141 151;
+  --ink: 14 15 17;
+  --ink-fg: 255 255 255;
+  --ink-hover: 44 46 52;
+  --on: 14 15 17;
+  --on-fg: 255 255 255;
+  --pop: 212 250 76;
+  --pop-fg: 14 15 17;
+  --band: 14 15 17;
+  --band-fg: 244 245 247;
+  --good: 30 120 40;
+  --danger: 214 45 32;
+  --seg-active: 255 255 255;
+  --checker: 226 229 234;
+  --shadow-sm: 0 1px 2px rgb(16 18 22 / 0.05), 0 1px 1px rgb(16 18 22 / 0.03);
+  --shadow-md: 0 12px 32px -12px rgb(16 18 22 / 0.18), 0 2px 6px rgb(16 18 22 / 0.04);
+  --shadow-lg: 0 32px 80px -24px rgb(16 18 22 / 0.35), 0 4px 12px rgb(16 18 22 / 0.06);
   color-scheme: light;
 }
 
-/* Dark theme, X "lights out" palette */
 .dark {
-  --bg: #000000;
-  --panel: #16181c;
-  --text: #e7e9ea;
-  --muted: #71767b;
-  --border: #2f3336;
-  --hover: #16181c;
-  --accent: #1d9bf0;
-  --accent-hover: #1a8cd8;
-  --btn: #eff3f4;
-  --btn-text: #0f1419;
-  --btn-hover: #d7dbdc;
+  --bg: 9 9 11;
+  --surface: 19 19 22;
+  --subtle: 28 28 33;
+  --line: 38 39 45;
+  --line-strong: 58 60 68;
+  --fg: 243 244 246;
+  --muted: 156 160 170;
+  --faint: 107 111 120;
+  --ink: 243 244 246;
+  --ink-fg: 11 11 13;
+  --ink-hover: 214 216 222;
+  --on: 212 250 76;
+  --on-fg: 14 15 17;
+  --pop: 212 250 76;
+  --pop-fg: 14 15 17;
+  --band: 19 19 22;
+  --band-fg: 243 244 246;
+  --good: 196 240 80;
+  --danger: 255 112 100;
+  --seg-active: 48 49 56;
+  --checker: 34 35 41;
+  --shadow-sm: 0 1px 2px rgb(0 0 0 / 0.4);
+  --shadow-md: 0 12px 32px -12px rgb(0 0 0 / 0.7), 0 2px 6px rgb(0 0 0 / 0.3);
+  --shadow-lg: 0 32px 80px -24px rgb(0 0 0 / 0.9), 0 4px 12px rgb(0 0 0 / 0.4);
   color-scheme: dark;
+}
+
+html {
+  -webkit-tap-highlight-color: transparent;
+  text-size-adjust: 100%;
 }
 
 html,
 body,
 #root {
-  height: 100%;
+  min-height: 100%;
 }
 
 body {
   @apply font-sans antialiased;
-  background: var(--bg);
-  color: var(--text);
+  background: rgb(var(--bg));
+  color: rgb(var(--fg));
   font-size: 15px;
-  line-height: 1.5;
+  line-height: 1.55;
+  font-feature-settings: 'cv05', 'cv11';
 }
 
-/* Sticky nav: translucent, blurred backdrop (falls back to solid where unsupported) */
+::selection {
+  background: rgb(var(--pop));
+  color: rgb(var(--pop-fg));
+}
+
+:focus-visible {
+  outline: 2px solid rgb(var(--fg));
+  outline-offset: 2px;
+}
+/* Text fields draw their own focus ring (see .field / .select), or sit inside one. */
+input:not([type='range']):not([type='checkbox']):not([type='color']):focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  outline: none;
+}
+
+/* Sticky header: translucent, blurred backdrop (falls back to solid where unsupported). */
 .nav-blur {
-  background: var(--bg);
+  background: rgb(var(--bg));
 }
 @supports ((backdrop-filter: blur(12px)) or (-webkit-backdrop-filter: blur(12px))) {
   .nav-blur {
-    background: color-mix(in srgb, var(--bg) 82%, transparent);
-    -webkit-backdrop-filter: saturate(180%) blur(12px);
-    backdrop-filter: saturate(180%) blur(12px);
+    background: rgb(var(--bg) / 0.78);
+    -webkit-backdrop-filter: saturate(180%) blur(14px);
+    backdrop-filter: saturate(180%) blur(14px);
   }
 }
 
-/* Range slider: filled accent track + custom thumb, theme-aware */
+/* Range slider: thin track filled up to the value, with a soft floating thumb. */
 input[type='range'] {
   -webkit-appearance: none;
   appearance: none;
   width: 100%;
-  height: 0.5rem;
+  height: 6px;
   border-radius: 9999px;
   cursor: pointer;
   background: linear-gradient(
     to right,
-    var(--accent) 0%,
-    var(--accent) var(--pct, 50%),
-    var(--hover) var(--pct, 50%),
-    var(--hover) 100%
+    rgb(var(--on)) 0%,
+    rgb(var(--on)) var(--pct, 50%),
+    rgb(var(--line-strong)) var(--pct, 50%),
+    rgb(var(--line-strong)) 100%
   );
 }
 input[type='range']::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  height: 1.05rem;
-  width: 1.05rem;
+  height: 20px;
+  width: 20px;
   border-radius: 9999px;
-  background: var(--accent);
-  border: 2px solid var(--bg);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  background: #fff;
+  border: 1px solid rgb(var(--line-strong));
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.2), 0 0 0 0 rgb(var(--fg) / 0.12);
+  transition: box-shadow 0.15s;
+}
+input[type='range']:hover::-webkit-slider-thumb,
+input[type='range']:focus-visible::-webkit-slider-thumb {
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.2), 0 0 0 6px rgb(var(--fg) / 0.1);
 }
 input[type='range']::-moz-range-thumb {
-  height: 1.05rem;
-  width: 1.05rem;
+  height: 20px;
+  width: 20px;
   border-radius: 9999px;
-  background: var(--accent);
-  border: 2px solid var(--bg);
+  background: #fff;
+  border: 1px solid rgb(var(--line-strong));
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.2);
+}
+input[type='range']:focus-visible {
+  outline: none;
 }
 input[type='range']:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: not-allowed;
 }
 
-/* Custom checkbox: rounded, accent fill + white tick when checked */
-input[type='checkbox'] {
+/* Number inputs: hide the spinner arrows, they are fiddly and the field is wide enough. */
+input[type='number']::-webkit-inner-spin-button,
+input[type='number']::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+input[type='number'] {
+  -moz-appearance: textfield;
+  appearance: textfield;
+}
+
+input[type='color'] {
   -webkit-appearance: none;
   appearance: none;
-  position: relative;
-  width: 1.15rem;
-  height: 1.15rem;
-  flex-shrink: 0;
-  border-radius: 0.375rem;
-  border: 1.5px solid var(--border);
-  background: var(--bg);
-  cursor: pointer;
-  transition: background 0.15s, border-color 0.15s;
+  padding: 0;
 }
-input[type='checkbox']:hover {
-  border-color: var(--muted);
+input[type='color']::-webkit-color-swatch-wrapper {
+  padding: 0;
 }
-input[type='checkbox']:checked {
-  background: var(--accent);
-  border-color: var(--accent);
+input[type='color']::-webkit-color-swatch {
+  border: none;
+  border-radius: 0.6rem;
 }
-input[type='checkbox']:checked::after {
-  content: '';
-  position: absolute;
-  left: 0.35rem;
-  top: 0.12rem;
-  width: 0.3rem;
-  height: 0.6rem;
-  border: solid #fff;
-  border-width: 0 2px 2px 0;
-  transform: rotate(45deg);
+input[type='color']::-moz-color-swatch {
+  border: none;
+  border-radius: 0.6rem;
 }
-::selection {
-  background: rgba(29, 155, 240, 0.25);
+
+/* react-image-crop: match the selection to the theme. */
+.ReactCrop__crop-selection {
+  border: 1.5px solid #fff;
+  box-shadow: 0 0 0 9999em rgb(0 0 0 / 0.55);
+}
+.ReactCrop .ord-nw::after,
+.ReactCrop .ord-ne::after,
+.ReactCrop .ord-sw::after,
+.ReactCrop .ord-se::after,
+.ReactCrop .ord-n::after,
+.ReactCrop .ord-e::after,
+.ReactCrop .ord-s::after,
+.ReactCrop .ord-w::after {
+  background-color: #fff;
+  border: none;
+  border-radius: 9999px;
+  width: 12px;
+  height: 12px;
+  box-shadow: 0 1px 4px rgb(0 0 0 / 0.4);
 }
 
 @layer components {
+  /* Width wrapper shared by every page. */
+  .container-page {
+    @apply mx-auto w-full max-w-page px-4 sm:px-6 lg:px-8;
+  }
+
+  /* Display type: big, tight and confident. */
+  .display {
+    font-weight: 650;
+    letter-spacing: -0.045em;
+    line-height: 0.95;
+    text-wrap: balance;
+  }
+  .text-display-xl {
+    font-size: clamp(2.75rem, 8.4vw, 7rem);
+  }
+  .text-display-lg {
+    font-size: clamp(2.4rem, 5.6vw, 4.5rem);
+    line-height: 0.98;
+  }
+  .text-display-md {
+    font-size: clamp(2.1rem, 4.4vw, 3.5rem);
+    line-height: 1;
+  }
+  .text-display-sm {
+    font-size: clamp(1.7rem, 3vw, 2.4rem);
+    letter-spacing: -0.035em;
+    line-height: 1.05;
+  }
+
+  /* The editorial accent: an italic serif word inside a sans headline. */
+  .serif-accent {
+    font-family: 'Instrument Serif', ui-serif, Georgia, serif;
+    font-style: italic;
+    font-weight: 400;
+    letter-spacing: -0.015em;
+    font-size: 1.08em;
+  }
+
+  /* A highlighter stroke behind a word. In dark mode the word itself turns lime instead. */
+  .mark-pop {
+    background: linear-gradient(transparent 60%, rgb(var(--pop)) 60%, rgb(var(--pop)) 90%, transparent 90%);
+    padding: 0 0.06em;
+    margin: 0 -0.06em;
+  }
+  .dark .mark-pop {
+    background: none;
+    color: rgb(var(--pop));
+  }
+
+  .eyebrow {
+    @apply inline-flex items-center gap-2 text-[12.5px] font-semibold uppercase text-muted;
+    letter-spacing: 0.08em;
+  }
+
+  .lead {
+    @apply text-[17px] leading-relaxed text-muted sm:text-lg;
+    text-wrap: pretty;
+  }
+
+  /* Buttons */
+  .btn {
+    @apply inline-flex h-10 select-none items-center justify-center gap-2 whitespace-nowrap rounded-full px-[1.1rem] text-[14px] font-semibold transition duration-150 disabled:cursor-not-allowed disabled:opacity-45;
+  }
+  .btn:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+  .btn-lg {
+    @apply h-[3.25rem] px-7 text-[15.5px];
+  }
+  .btn-sm {
+    @apply h-8 px-3 text-[13px];
+  }
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-2.5 text-sm font-bold transition disabled:cursor-not-allowed disabled:opacity-50;
-    background: var(--btn);
-    color: var(--btn-text);
+    background: rgb(var(--ink));
+    color: rgb(var(--ink-fg));
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.1), 0 1px 2px rgb(0 0 0 / 0.18);
   }
   .btn-primary:hover:not(:disabled) {
-    background: var(--btn-hover);
+    background: rgb(var(--ink-hover));
   }
-
+  .btn-secondary {
+    background: rgb(var(--surface));
+    color: rgb(var(--fg));
+    box-shadow: inset 0 0 0 1px rgb(var(--line)), var(--shadow-sm);
+  }
+  .btn-secondary:hover:not(:disabled) {
+    box-shadow: inset 0 0 0 1px rgb(var(--line-strong)), var(--shadow-sm);
+    background: rgb(var(--subtle) / 0.6);
+  }
   .btn-ghost {
-    @apply inline-flex items-center justify-center gap-2 rounded-full border px-4 py-2 text-sm font-bold transition;
-    border-color: var(--border);
-    color: var(--text);
+    color: rgb(var(--muted));
   }
-  .btn-ghost:hover {
-    background: var(--hover);
+  .btn-ghost:hover:not(:disabled) {
+    background: rgb(var(--subtle));
+    color: rgb(var(--fg));
+  }
+  .btn-pop {
+    background: rgb(var(--pop));
+    color: rgb(var(--pop-fg));
+  }
+  .btn-pop:hover:not(:disabled) {
+    filter: brightness(0.96);
   }
 
+  .icon-btn {
+    @apply grid h-10 w-10 shrink-0 place-items-center rounded-full text-muted transition hover:bg-subtle hover:text-fg;
+  }
+
+  /* Surfaces */
+  .card {
+    @apply rounded-[1.25rem] border border-line bg-surface;
+  }
+  .card-link {
+    @apply rounded-[1.25rem] border border-line bg-surface transition duration-200;
+  }
+  .card-link:hover {
+    @apply -translate-y-0.5 border-line-strong shadow-lift;
+  }
+
+  .chip {
+    @apply inline-flex h-7 items-center gap-1.5 rounded-full border border-line bg-surface px-2.5 text-[12.5px] font-medium text-muted;
+  }
+  .chip-pop {
+    @apply inline-flex items-center rounded-full bg-pop px-2 py-0.5 text-[12px] font-bold tabular-nums text-pop-fg;
+  }
+
+  .kbd {
+    @apply inline-flex h-5 min-w-[1.25rem] items-center justify-center rounded-md border border-line bg-subtle px-1.5 font-sans text-[11px] font-semibold text-muted;
+  }
+
+  /* Form controls */
+  .label {
+    @apply mb-2 block text-[13px] font-semibold text-fg;
+  }
+  .hint {
+    @apply text-[12.5px] leading-relaxed text-muted;
+  }
   .field {
-    @apply w-full rounded-xl border bg-transparent px-3 py-2.5 text-sm outline-none transition;
-    border-color: var(--border);
-    color: var(--text);
+    @apply h-11 w-full rounded-xl border border-line bg-surface px-3.5 text-[14px] text-fg outline-none transition;
+  }
+  .field:hover {
+    @apply border-line-strong;
   }
   .field:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 1px var(--accent);
+    border-color: rgb(var(--fg));
+    box-shadow: 0 0 0 3px rgb(var(--fg) / 0.1);
   }
-
   .select {
-    @apply w-full cursor-pointer appearance-none rounded-xl border bg-transparent px-3 py-2.5 pr-10 text-sm outline-none transition;
+    @apply h-11 w-full cursor-pointer appearance-none rounded-xl border border-line bg-surface px-3.5 pr-10 text-[14px] font-medium text-fg outline-none transition;
     -webkit-appearance: none;
-    border-color: var(--border);
-    color: var(--text);
   }
   .select:hover {
-    border-color: var(--muted);
+    @apply border-line-strong;
   }
   .select:focus {
-    border-color: var(--accent);
-    box-shadow: 0 0 0 1px var(--accent);
+    border-color: rgb(var(--fg));
+    box-shadow: 0 0 0 3px rgb(var(--fg) / 0.1);
   }
   .select option {
-    background: var(--panel);
-    color: var(--text);
+    background: rgb(var(--surface));
+    color: rgb(var(--fg));
   }
 
-  .card {
-    @apply rounded-2xl border p-4;
-    border-color: var(--border);
+  /* Segmented control */
+  .seg {
+    @apply flex gap-1 rounded-full bg-subtle p-1;
+  }
+  .seg-btn {
+    @apply h-9 min-w-0 flex-1 truncate rounded-full px-3 text-[13.5px] font-semibold text-muted transition;
+  }
+  .seg-btn:hover {
+    @apply text-fg;
+  }
+  .seg-btn[aria-pressed='true'] {
+    background: rgb(var(--seg-active));
+    color: rgb(var(--fg));
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.08), 0 0 0 1px rgb(var(--line) / 0.6);
+  }
+
+  /* Long-form text (About, Privacy, blog posts). */
+  .prose-ui {
+    @apply space-y-5 text-[16.5px] leading-[1.75] text-muted;
+  }
+  .prose-ui h2 {
+    @apply pt-6 text-[1.6rem] font-semibold leading-tight text-fg;
+    letter-spacing: -0.03em;
+  }
+  .prose-ui strong,
+  .prose-ui b {
+    @apply font-semibold text-fg;
+  }
+  .prose-ui ul {
+    @apply list-disc space-y-2 pl-5 marker:text-faint;
+  }
+  .prose-ui a {
+    @apply font-medium text-fg underline decoration-line-strong underline-offset-4 transition hover:decoration-fg;
+  }
+
+  .link {
+    @apply font-medium text-fg underline decoration-line-strong underline-offset-4 transition hover:decoration-fg;
   }
 }
 
@@ -197,13 +422,83 @@ input[type='checkbox']:checked::after {
   }
   /* Transparency preview backdrop for cut-out (alpha) images. */
   .checkerboard {
-    background-color: #ffffff;
+    background-color: rgb(var(--surface));
     background-image:
-      linear-gradient(45deg, #dcdfe1 25%, transparent 25%),
-      linear-gradient(-45deg, #dcdfe1 25%, transparent 25%),
-      linear-gradient(45deg, transparent 75%, #dcdfe1 75%),
-      linear-gradient(-45deg, transparent 75%, #dcdfe1 75%);
-    background-size: 18px 18px;
-    background-position: 0 0, 0 9px, 9px -9px, -9px 0;
+      linear-gradient(45deg, rgb(var(--checker)) 25%, transparent 25%),
+      linear-gradient(-45deg, rgb(var(--checker)) 25%, transparent 25%),
+      linear-gradient(45deg, transparent 75%, rgb(var(--checker)) 75%),
+      linear-gradient(-45deg, transparent 75%, rgb(var(--checker)) 75%);
+    background-size: 16px 16px;
+    background-position: 0 0, 0 8px, 8px -8px, -8px 0;
+  }
+  /* Faint dot grid that fades out toward the edges (hero backdrop). */
+  .dot-grid {
+    background-image: radial-gradient(rgb(var(--fg) / 0.09) 1px, transparent 1px);
+    background-size: 22px 22px;
+    -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 20%, transparent 75%);
+    mask-image: radial-gradient(ellipse 70% 60% at 50% 40%, #000 20%, transparent 75%);
+  }
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .animate-fade-up {
+    animation: fade-up 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+  .animate-fade-in {
+    animation: fade-in 0.3s ease-out both;
+  }
+  .animate-scale-in {
+    animation: scale-in 0.22s cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+  .animate-progress {
+    animation: progress-slide 1.1s ease-in-out infinite;
+  }
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+@keyframes scale-in {
+  from {
+    opacity: 0;
+    transform: scale(0.97) translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+@keyframes progress-slide {
+  from {
+    transform: translateX(-100%);
+  }
+  to {
+    transform: translateX(250%);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

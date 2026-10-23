@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react';
 import ImageToolShell from '../components/ImageToolShell';
+import { Icon } from '../components/icons';
 import { normalizeType, type ProcessOptions } from '../lib/imageTypes';
 
 export default function StripMetadata() {
@@ -44,18 +45,30 @@ export default function StripMetadata() {
   }, []);
 
   const controls = (
-    <div className="card p-3 text-sm">
-      <p className="font-semibold text-fg">Detected metadata</p>
-      {scanning && <p className="mt-1 text-xs text-muted">Scanning</p>}
-      {meta && (
-        <ul className="mt-2 space-y-1 text-xs text-muted">
-          {meta.map((m, i) => (
-            <li key={i}>{m}</li>
-          ))}
-        </ul>
-      )}
-      <p className="mt-3 text-xs text-muted">
-        Cleaning re-encodes each image and strips EXIF, GPS location and camera info.
+    <div>
+      <p className="text-[13px] font-semibold text-fg">What we found</p>
+      <div className="mt-2 rounded-xl border border-line bg-subtle/50 p-3.5">
+        {!meta && !scanning && (
+          <p className="hint">Add photos to scan them on this device for hidden location and camera data.</p>
+        )}
+        {scanning && <p className="hint">Scanning on your device&hellip;</p>}
+        {meta && (
+          <ul className="space-y-2">
+            {meta.map((m, i) => (
+              <li key={i} className="flex items-start gap-2 text-[13px] leading-snug text-fg">
+                <Icon
+                  name={m.startsWith('No obvious') ? 'check' : 'eye'}
+                  className={`mt-px h-4 w-4 shrink-0 ${m.startsWith('No obvious') ? 'text-good' : 'text-danger'}`}
+                />
+                <span className="min-w-0 break-words">{m}</span>
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+      <p className="hint mt-3">
+        Cleaning re-encodes each image, which drops EXIF, GPS location and camera details. The picture itself is
+        unchanged.
       </p>
     </div>
   );

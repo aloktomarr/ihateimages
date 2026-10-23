@@ -15,7 +15,7 @@ export default function Select({ wrapperClassName = '', children, ...rest }: Pro
       </select>
       <Icon
         name="chevronDown"
-        className="pointer-events-none absolute right-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted"
+        className="pointer-events-none absolute right-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted"
       />
     </div>
   );

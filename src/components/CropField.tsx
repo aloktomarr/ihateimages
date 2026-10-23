@@ -36,6 +36,8 @@ export default function CropField({ file, aspect, onCropChange }: Props) {
   const [src, setSrc] = useState('');
   const [crop, setCrop] = useState<Crop>();
   const imgRef = useRef<HTMLImageElement>(null);
+  const aspectRef = useRef(aspect);
+  aspectRef.current = aspect;
 
   useEffect(() => {
     const url = URL.createObjectURL(file);
@@ -58,12 +60,16 @@ export default function CropField({ file, aspect, onCropChange }: Props) {
     const sx = img.naturalWidth / img.width;
     const sy = img.naturalHeight / img.height;
     if (!px.width || !px.height) return null;
-    return {
-      x: Math.round(px.x * sx),
-      y: Math.round(px.y * sy),
-      width: Math.round(px.width * sx),
-      height: Math.round(px.height * sy),
-    };
+    const x = Math.round(px.x * sx);
+    const y = Math.round(px.y * sy);
+    const width = Math.round(px.width * sx);
+    // With a locked ratio, derive the height from the width so rounding cannot skew it
+    // (a 1:1 crop must come out exactly square), staying inside the image.
+    const ratio = aspectRef.current;
+    const height = ratio
+      ? Math.min(Math.round(width / ratio), img.naturalHeight - y)
+      : Math.round(px.height * sy);
+    return { x, y, width, height };
   }, []);
 
   const onImageLoad = useCallback(
@@ -87,7 +93,7 @@ export default function CropField({ file, aspect, onCropChange }: Props) {
   }, [aspect]);
 
   return (
-    <div className="grid place-items-center overflow-hidden rounded-2xl border border-line bg-hover p-2">
+    <div className="checkerboard grid place-items-center overflow-hidden rounded-2xl p-2 sm:p-4">
       <ReactCrop
         crop={crop}
         onChange={(c) => setCrop(c)}
@@ -102,7 +108,7 @@ export default function CropField({ file, aspect, onCropChange }: Props) {
             src={src}
             alt="Crop source"
             onLoad={onImageLoad}
-            className="max-h-[62vh] w-auto select-none"
+            className="max-h-[60vh] w-auto select-none"
           />
         )}
       </ReactCrop>

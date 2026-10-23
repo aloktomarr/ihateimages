@@ -1,28 +1,38 @@
 import { Link } from 'react-router-dom';
+import { Icon } from '../components/icons';
+import { PageHeader } from '../components/Sections';
 import { BLOG_POSTS, formatDate } from '../lib/blog';
 import { prefetchRoute } from '../lib/routes';
 
 export default function Blog() {
   return (
-    <div className="max-w-3xl">
-      <h1 className="text-3xl font-extrabold tracking-tight sm:text-4xl">Blog</h1>
-      <p className="mt-3 text-[15px] text-muted">
-        Notes on private, in-browser image processing and how iHateImages is built.
-      </p>
+    <div className="container-page">
+      <PageHeader
+        eyebrow="Blog"
+        title="Notes from"
+        accent="the browser."
+        lead="On private, in-browser image processing, and how iHateImages is built."
+      />
 
-      <div className="mt-8 space-y-4">
+      <div className="grid gap-3 md:grid-cols-2">
         {BLOG_POSTS.map((p) => (
           <Link
             key={p.slug}
             to={p.path}
             onMouseEnter={() => prefetchRoute(p.path)}
-            className="card block transition hover:bg-hover"
+            className="card-link group flex min-h-[260px] flex-col p-6 sm:p-8"
           >
-            <h2 className="text-lg font-bold text-fg">{p.title}</h2>
-            <p className="mt-1 text-xs text-muted">
+            <p className="tabular text-[13px] text-muted">
               {formatDate(p.date)} &middot; {p.readingMinutes} min read
             </p>
-            <p className="mt-2 text-sm text-muted">{p.excerpt}</p>
+            <h2 className="mt-auto pt-10 text-[1.6rem] font-semibold leading-tight tracking-[-0.03em] text-fg">
+              {p.title}
+            </h2>
+            <p className="mt-3 text-[15px] leading-relaxed text-muted">{p.excerpt}</p>
+            <span className="mt-6 flex items-center gap-1.5 text-[14px] font-semibold text-fg">
+              Read the post
+              <Icon name="arrowRight" className="h-4 w-4 transition group-hover:translate-x-1" />
+            </span>
           </Link>
         ))}
       </div>
